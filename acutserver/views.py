@@ -9,10 +9,20 @@ from operator import eq
 import os
 import boto
 import boto.s3.connection
+import json
 from boto.s3.key import Key
 
 
 # Create your views here.
+def json_decoding_page(request):
+  return render(request,"./json_decode.html")
+@csrf_exempt
+def json_decode(request):
+  if 'shiny' in request.POST:
+    decode_rt=request.POST['name']+", "+request.POST['hind'] 
+  else:
+    decode_rt="no json object or no check on the check box"
+  return HttpResponse("<h1> %s </h1>" %decode_rt)
 
 def uploadpage(request) :
   return render(request, './upload.html')
@@ -58,12 +68,12 @@ def download(request) :
     
     for row in result :
 
-      image_list.append(image_url+str(row).encode('euc-kr'))  
+      image_list.append(image_url+str(row[0]).encode('euc-kr'))  
       #key = Key(bucket, row)
       
-      result_str += image_url+str(row)
+      result_str += "<img src=\""+image_url+str(row[0])+"\">"
 
     
-    return HttpResponse("<h1> %s </h1>" %result_str)
+    return HttpResponse("%s" %result_str)
 
   return HttpResponse("<h1>download fail</h1>")
