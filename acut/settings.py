@@ -86,7 +86,7 @@ DATABASES = {
         'HOST':'dataserver.cfquaioenwar.ap-northeast-2.rds.amazonaws.com',
         'PORT':'3306',
     }
-
+    }
 
 
 # Password validation
