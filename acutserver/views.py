@@ -10,12 +10,13 @@ import os
 import boto
 import boto.s3.connection
 import json
-from boto.s3.key import Key
+from boto.s3.connection import S3Connection, Bucket, Key
 
 
 # Create your views here.
 def json_decoding_page(request):
   return render(request,"./json_decode.html")
+
 @csrf_exempt
 def json_decode(request):
   if 'shiny' in request.POST:
@@ -77,3 +78,20 @@ def download(request) :
     return HttpResponse("%s" %result_str)
 
   return HttpResponse("<h1>download fail</h1>")
+
+def delete_photo(request) :
+  if request.method == 'POST':
+    filename = request.POST.get('filename')
+    conn =  S3Connection(os.environ.get("AWS_ACCESS_KEY_ID"),os.environ.get("AWS_SECERET_ACCESS_KEY"))
+
+    b = Bucket(conn, "acut-fullsize-image")
+    k = Key(b)
+    k.key = filename
+    b.delete_key(k)
+    
+    query_string = "delete from acutserver_upload_file where image=\"%s\"" %filename
+    cursor.execute(query_string)
+    
+    return HttpResponse("<h1> delete %s success</h1>" %filename)
+
+  return HttpResponse("<h1> delete %s fail</h1>" %filename)

@@ -13,9 +13,9 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 import os
 import boto
 from boto.s3.connection import S3Connection
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
@@ -79,16 +79,14 @@ WSGI_APPLICATION = 'acut.wsgi.application'
 
 DATABASES = {
     'default': {
-        #'ENGINE': 'django.db.backends.sqlite3',
-        #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         'ENGINE':'django.db.backends.mysql',
         'NAME':'Acut_DB',
-        'USER': os.environ.get('DB_USER'),
+        'USER':os.environ.get('DB_USER'),
         'PASSWORD':os.environ.get('DB_PW'),
         'HOST':'dataserver.cfquaioenwar.ap-northeast-2.rds.amazonaws.com',
         'PORT':'3306',
     }
-}
+
 
 
 # Password validation
