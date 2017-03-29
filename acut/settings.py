@@ -137,8 +137,8 @@ STATIC_ROOT = os.path.join(PROJECT_DIR,'static')
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 
 
-AWS_ACCESS_KEYID = os.environ.get("AWS_ACCESS_KEY_ID")
-AWS_SECRETE_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+AWS_S3_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+AWS_S3_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 #AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
 AWS_STORAGE_BUCKET_NAME = "acut-fullsize-image"
 AWS_REGION = 'ap-northeast-2'
