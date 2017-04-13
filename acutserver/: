@@ -7,14 +7,13 @@ from .image_form import upload_image_form
 from django.views.decorators.csrf import csrf_exempt
 from django.db import connection
 from operator import eq
-from django.http import JsonResponse
-from boto.s3.connection import S3Connection, Bucket, Key
-from django.core import serializers
 import os
 import boto
 import boto.s3.connection
 import json
-import json
+from boto.s3.connection import S3Connection, Bucket, Key
+
+
 # Create your views here.
 def json_decoding_page(request):
   return render(request,"./json_decode.html")
@@ -38,12 +37,12 @@ def delete_photopage(request) :
 @csrf_exempt
 def sign_up(request) :
   if request.method =='POST':
-    data = json.load(request)
-    u_id = data['user_id']  
-    u_pw = data['user_pw']
-    u_name = data['user_name']
-    u_email = data['user_email']
-    sign_up_obj = User(user_id = u_id, user_pw = u_pw, user_name = u_name,user_email = u_email, user_type = "normal",ticket = 0)
+    u_id = request.POST.get('user_id')  
+    u_pw = request.POST.get('user_pw')
+    u_name = request.POST.get('user_name')
+    u_email = request.POST.get('user_email')
+    sign_up_obj = User(user_id = u_id, user_pw = u_pw, user_name =
+        u_name,user_email = u_email, user_type = "normal",ticket = 0)
     
     if sign_up_obj.save() :
       return HttpResponse("success")
@@ -51,22 +50,6 @@ def sign_up(request) :
       return HttpResponse("fail")
     
   return HttpResponse("fail to get post")
-
-@csrf_exempt
-def sign_in(request):
-  if request.method =='POST':
-    
-    data = json.load(request)
-    u_id = data['user_id']
-    u_pw = data['user_pw']
-    
-    sign_in_user = User.objects.filter(user_id = u_id, user_pw = u_pw)
-    
-    json_encode = serializers.serialize('json',sign_in_user)
-
-    return JsonResponse(json_encode, safe = False)
-
-  return HttpResponse("none")
 
 @csrf_exempt
 def upload(request) :
@@ -116,23 +99,23 @@ def download(request) :
     return HttpResponse("%s" %result_str)
 
   return HttpResponse("<h1>download fail</h1>")
-
 @csrf_exempt
 def delete_photo(request) :
-  if request.method == 'POST':
-    filename = request.POST.get('username',False)
-  else :
-    filename = 'images/2017/2/23/user/user-2017-02-23-476653.png'
-     
-  conn = boto.connect_s3(os.environ.get("AWS_ACCESS_KEY_ID"),os.environ.get("AWS_SECERET_ACCESS_KEY"))
-    #conn = boto.connect_s3()
-  b = conn.get_bucket("acut-fullsize-image")
-  k = Key(b, filename)
 
-  if k:
-    return HttpResponse("<h1> %s is exist </h1>" %filename)
-  else :
-    return HttpResponse("<h1> delete %s fail</h1>" %filename)
+    if request.method == 'POST':
+      filename = request.POST.get('username',False)
+    else :
+      filename = 'images/2017/2/23/user/user-2017-02-23-476653.png'
+     
+    conn = boto.connect_s3(os.environ.get("AWS_ACCESS_KEY_ID"),os.environ.get("AWS_SECERET_ACCESS_KEY"))
+    #conn = boto.connect_s3()
+    b = conn.get_bucket("acut-fullsize-image")
+    k = Key(b, filename)
+
+    if k:
+      return HttpResponse("<h1> %s is exist </h1>" %filename)
+    else :
+      return HttpResponse("<h1> delete %s fail</h1>" %filename)
 
 """  if request.method == 'POST':
     filename = request.POST.get('filename')
@@ -148,4 +131,4 @@ def delete_photo(request) :
     
     return HttpResponse("<h1> delete %s success</h1>" %filename)
 """
-  #return HttpResponse("<h1> delete %s fail</h1>" %filename)
+#  return HttpResponse("<h1> delete %s fail</h1>" %filename)
