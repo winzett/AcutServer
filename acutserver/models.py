@@ -33,21 +33,29 @@ class User(models.Model) :
   user_email = models.EmailField()
   user_type = models.CharField(max_length=20)
   ticket = models.PositiveIntegerField(default=0)
+  
+  def as_dict(self):
+    return {
+          "user_name" : self.user_name,
+          "user_img" : self.user_img,
+        }
 
 class Post(models.Model) :
   post_index = models.AutoField(primary_key=True)
-  user_index = ForeignKey(User, db_column = 'user_index', on_delete=models.CASCADE)
+  user_index = models.ForeignKey(User, db_column = 'user_index', on_delete=models.CASCADE)
   post_img = models.CharField(max_length=100)
   post_content = models.TextField(null=True)
-  post_like = models.PositiveInteger(default=0)
+  post_like = models.PositiveIntegerField(default=0)
   challenge = models.BooleanField(default=False)
   champion = models.BooleanField(default=False)
 
 class Challenger(models.Model) :
   ch_index = models.AutoField(primary_key=True)
-  ch1_post_index = ForeignKey(Post, db_column = 'ch1_post_index',on_delete=models.CASCADE)
-  ch2_post_index = ForeignKey(Post, db_column = 'ch2_post_index',on_delete=models.CASCADE)
-  ch_time = models.DateTimeField(auto_now_add=True, auto_now= True)
+  ch1_post_index =  models.ForeignKey(Post, null = True, related_name = 'ch1_post_index',
+      on_delete=models.CASCADE)
+  ch2_post_index =  models.ForeignKey(Post, null = True, related_name = 'ch2_post_index',
+      on_delete=models.CASCADE)
+  ch_time = models.DateTimeField(auto_now_add=True)
 
 class Hash_table(models.Model) :
   hash_index = models.AutoField(primary_key=True)
@@ -55,41 +63,41 @@ class Hash_table(models.Model) :
 
 class Comment(models.Model):
   comment_index  = models.AutoField(primary_key=True)
-  post_index = ForeignKey(Post, db_column = 'post_index',on_delete=models.CASCADE)
-  user_index = ForeignKey(User, db_column = 'user_index',on_delete=models.CASCADE)
+  post_index =  models.ForeignKey(Post, db_column = 'post_index',on_delete=models.CASCADE)
+  user_index =  models.ForeignKey(User, db_column = 'user_index',on_delete=models.CASCADE)
   comment_content = models.TextField(null=True)
-  comment_time = models.DateTimeField_(auto_now_add=True, auto_now=True)
+  comment_time = models.DateTimeField(auto_now_add=True)
 
 class Like_table(models.Model):
   like_index = models.AutoField(primary_key=True)
-  user_index = ForeignKey(User, db_column = 'user_index',
+  user_index =  models.ForeignKey(User, db_column = 'user_index',
       on_delete=models.CASCADE)
-  post_index = ForeignKey(Post, db_column = 'post_index',
+  post_index =  models.ForeignKey(Post, db_column = 'post_index',
       on_delete=models.CASCADE)
 
 class Follow (models.Model):
   follow_index = models.AutoField(primary_key=True)
-  following_user_index = ForeignKey(User, db_column = 'user_index',
+  following_user_index = models.ForeignKey(User, null = True, related_name = 'following_user_index',
       on_delete=models.CASCADE)
-  follower_user_index = ForeignKey(User, db_column = 'user_index',
+  follower_user_index = models.ForeignKey(User, null = True, related_name = 'follower_user_index',
       on_delete=models.CASCADE)
 
 
 class Hash_tag(models.Model) :
   hash_tag_index = models.AutoField(primary_key=True)
-  post_index = ForeignKey(Post, db_column = 'post_index',
+  post_index =  models.ForeignKey(Post, db_column = 'post_index',
       on_delete=models.CASCADE)
-  hash_index = ForeignKey(Hash_table, db_column = 'hash_index',
+  hash_index =  models.ForeignKey(Hash_table, db_column = 'hash_index',
       on_delete=models.CASCADE)
 
 class Challenge_comment (models.Model) :
   ch_comment_index  = models.AutoField(primary_key=True)
-  post_index = ForeignKey(Post, db_column = 'post_index',
+  post_index =  models.ForeignKey(Post, db_column = 'post_index',
       on_delete=models.CASCADE)
-  user_index = ForeignKey(User, db_column = 'user_index',
+  user_index =  models.ForeignKey(User, db_column = 'user_index',
       on_delete=models.CASCADE)
   ch_comment_content = models.TextField(null=True)
-  ch_comment_time = models.DateTimeField(auto_now_add=True, auto_now=True)
+  ch_comment_time = models.DateTimeField(auto_now_add=True)
 
 class Photo_meta(models.Model) :
   photo_meta_index = models.AutoField(primary_key=True)
@@ -97,9 +105,9 @@ class Photo_meta(models.Model) :
 
 class Photo_info (models.Model):
   photo_info_index = models.AutoField(primary_key=True)
-  post_index = ForeignKey(Post, db_column = 'post_index',
+  post_index =  models.ForeignKey(Post, db_column = 'post_index',
       on_delete=models.CASCADE)
-  photo_meta_index = ForeignKey(Photo_meta, db_column = 'photo_meta_index',
+  photo_meta_index =  models.ForeignKey(Photo_meta, db_column = 'photo_meta_index',
       on_delete=models.CASCADE)
 
 

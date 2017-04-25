@@ -14,7 +14,7 @@ import os
 import boto
 import boto.s3.connection
 import json
-import json
+
 # Create your views here.
 def json_decoding_page(request):
   return render(request,"./json_decode.html")
@@ -32,8 +32,12 @@ def uploadpage(request) :
 
 def downloadpage(request) :
   return render(request, './download.html')
-def delete_photopage(request) :
-  return render(request, './delete_photo.html')
+#def delete_photopage(request) :
+#  return render(request, './delete_photo.html')
+
+
+
+## Good, pic info input(tag hash add, ), hash tag add, add to Hash table, tag search, challenge 
 
 @csrf_exempt
 def sign_up(request) :
@@ -64,7 +68,7 @@ def sign_in(request):
     
     json_encode = serializers.serialize('json',sign_in_user)
 
-    return JsonResponse(json_encode, safe = False)
+    return HttpResponse(json.dumps(json_encode), content_type="application/json")
 
   return HttpResponse("none")
 
@@ -87,36 +91,23 @@ def download(request) :
   query_string = "select image from acutserver_upload_file where user = \"%s\"" %request.POST.get('username',False)
   cursor.execute(query_string)
   result = cursor.fetchall()
-  #image_url =  "https://s3.ap-northeast-2.amazonaws.com/"+str(os.environ.get("AWS_STORAGE_BUCKET_NAME"))+"/"
   image_url = "https://s3.ap-northeast-2.amazonaws.com/acut-fullsize-image/"
-  #return HttpResponse("<h1> %s </h1>" %result)
-   # result_str = "":W
-
-   # bucket_name = 'acut-fullsize-image'i
-   # conn = boto.connect_s3(
-   #     aws_access_key_id = os.environ.get("AWS_ACCESS_KEY_ID"),
-   #     aws_secret_access_key =  = os.environ.get("AWS_SECRET_ACCESS_KEY"),
-   #     host = 's3.ap-northeast-2.amazonaws.com',
-   #     calling_format = boto.s3.connection.OrdinaryCallingFormat()
-
-   #    )
-   # bucket = conn.get_bucket(bucket_name)
+  
   if cursor.rowcount != 0 : 
     image_list = []
     result_str = ""
     
     for row in result :
-
       image_list.append(image_url+str(row[0]).encode('euc-kr'))  
-      #key = Key(bucket, row)
-      
       result_str += "<img src=\""+image_url+str(row[0])+"\">"
-
     
     return HttpResponse("%s" %result_str)
 
   return HttpResponse("<h1>download fail</h1>")
 
+
+
+"""
 @csrf_exempt
 def delete_photo(request) :
   if request.method == 'POST':
@@ -134,7 +125,7 @@ def delete_photo(request) :
   else :
     return HttpResponse("<h1> delete %s fail</h1>" %filename)
 
-"""  if request.method == 'POST':
+  if request.method == 'POST':
     filename = request.POST.get('filename')
     conn =  S3Connection(os.environ.get("AWS_ACCESS_KEY_ID"),os.environ.get("AWS_SECERET_ACCESS_KEY"))
 
@@ -147,5 +138,5 @@ def delete_photo(request) :
     cursor.execute(query_string)
     
     return HttpResponse("<h1> delete %s success</h1>" %filename)
-"""
   #return HttpResponse("<h1> delete %s fail</h1>" %filename)
+  """
