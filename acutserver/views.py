@@ -16,6 +16,9 @@ import boto.s3.connection
 import json
 
 # Create your views here.
+def jsontest(request):
+  return render(request,"./jsontest.html")
+
 def json_decoding_page(request):
   return render(request,"./json_decode.html")
 
@@ -61,6 +64,8 @@ def sign_in(request):
   if request.method =='POST':
     
     data = json.load(request)
+    #data = request.POST
+    
     u_id = data['user_id']
     u_pw = data['user_pw']
     
@@ -71,6 +76,12 @@ def sign_in(request):
     return HttpResponse(json.dumps(json_encode), content_type="application/json")
 
   return HttpResponse("none")
+
+#@csrf_exempt
+#  def show_posts(request):
+#    if request.method == 'POST':
+
+
 
 @csrf_exempt
 def upload(request) :

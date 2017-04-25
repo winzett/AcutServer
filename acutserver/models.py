@@ -33,7 +33,7 @@ class User(models.Model) :
   user_email = models.EmailField()
   user_type = models.CharField(max_length=20)
   ticket = models.PositiveIntegerField(default=0)
-  
+
   def as_dict(self):
     return {
           "user_name" : self.user_name,
@@ -48,12 +48,13 @@ class Post(models.Model) :
   post_like = models.PositiveIntegerField(default=0)
   challenge = models.BooleanField(default=False)
   champion = models.BooleanField(default=False)
+  post_time = models.DateTimeField(default = datetime.datetime.now())
 
 class Challenger(models.Model) :
   ch_index = models.AutoField(primary_key=True)
-  ch1_post_index =  models.ForeignKey(Post, null = True, related_name = 'ch1_post_index',
+  ch1_post_index =  models.ForeignKey(Post,related_name = 'ch1_post_index',
       on_delete=models.CASCADE)
-  ch2_post_index =  models.ForeignKey(Post, null = True, related_name = 'ch2_post_index',
+  ch2_post_index =  models.ForeignKey(Post, related_name = 'ch2_post_index',
       on_delete=models.CASCADE)
   ch_time = models.DateTimeField(auto_now_add=True)
 
@@ -77,9 +78,9 @@ class Like_table(models.Model):
 
 class Follow (models.Model):
   follow_index = models.AutoField(primary_key=True)
-  following_user_index = models.ForeignKey(User, null = True, related_name = 'following_user_index',
+  following_user_index = models.ForeignKey(User, related_name = 'following_user_index',
       on_delete=models.CASCADE)
-  follower_user_index = models.ForeignKey(User, null = True, related_name = 'follower_user_index',
+  follower_user_index = models.ForeignKey(User, related_name = 'follower_user_index',
       on_delete=models.CASCADE)
 
 
