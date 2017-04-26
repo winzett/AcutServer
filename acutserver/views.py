@@ -1,9 +1,15 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+
+from .models import Post
 from .models import upload_file
 from .models import User
+from .models import Comment
+from .models import Photo_meta
+from .models import Photo_info
+
 from django.core.urlresolvers import reverse
-from .image_form import upload_image_form
+from .forms import upload_image_form
 from django.views.decorators.csrf import csrf_exempt
 from django.db import connection
 from operator import eq
@@ -40,7 +46,66 @@ def downloadpage(request) :
 
 
 
-## Good, pic info input(tag hash add, ), hash tag add, add to Hash table, tag search, challenge 
+## Main feed,comments, Good, pic info input(tag hash add, ), hash tag add, add to Hash table, tag search, challenge 
+#add3
+@csrf_exempt
+def add_comment(request):
+  if request.method == 'POST':
+    data = json.load(request)
+    u_idx = data['user_idx']
+    post_num = data['post_index']
+    comment_txt = data['comment']
+
+    add_comment_obj = Comment(post_index = post_num, user_index = u_idx, comment_content = comment_txt)
+    if add_comment_obj.save():
+      HttpResponse("success")
+    else :
+      HttpResponse("fail")
+
+  return HttpResponse("bad access")
+
+#add2
+@csrf_exempt
+def user_posts(request):
+  if request.method == 'POST':
+    data = json.load(request)
+    u_idx = data['user_idx']
+    p_img = data['image_path']
+    p_info = data['photo_info']
+    #have to think about the  search speed because it wiil compare all hash
+    #tags with hash tables word
+"""
+    for info in p_info:
+      has_meta = Photo_meta.objects.filter( photo_info_name = info['photo_info_name'])
+    
+      if has_meta.count() == 0:
+        meta_obj = Photo_meta(photo_info_name = p_info['photo_info_name'])
+        meta_obj.save()
+        has_meta = Photo_meta.objects.filter( photo_info_name = p_info['photo_info_name'])
+""" 
+
+
+
+
+
+#add1
+@csrf_exempt
+def get_user_posts(request):
+  if request.method == 'POST':
+    #need user idx & request pic num 
+    data = json.load(request)
+    u_idx = data['user_idx']
+    #r_num = data["request_num"]
+    #send the results all first and request sequencially on client side not to
+    #server side but to s3 server thumbnails(do i need to make thumbnails?) 
+    #user_info = User.objects.get(user_id = u_id)
+    
+    posts = Post.objects.filter(user_index = u_idx).order_by('post_time')
+    
+    json_encode = serializers.serialize('json'.posts)
+    return HttpResponse(json.dumps(json_encode), content_type="application/json")
+
+  return HttpResponse("bad access")
 
 @csrf_exempt
 def sign_up(request) :
@@ -52,18 +117,18 @@ def sign_up(request) :
     u_email = data['user_email']
     sign_up_obj = User(user_id = u_id, user_pw = u_pw, user_name = u_name,user_email = u_email, user_type = "normal",ticket = 0)
     
-    if sign_up_obj.save() :
-      return HttpResponse("success")
-    else :
-      return HttpResponse("fail")
+    sign_up_obj.save() 
+    return HttpResponse("save")
     
-  return HttpResponse("fail to get post")
+  return HttpResponse("bad access")
 
 @csrf_exempt
 def sign_in(request):
   if request.method =='POST':
     
-    data = json.load(request)
+    json_obj = json.load(request)
+    data = json_obj[0]
+    
     #data = request.POST
     
     u_id = data['user_id']
@@ -73,9 +138,10 @@ def sign_in(request):
     
     json_encode = serializers.serialize('json',sign_in_user)
 
+    #return JsonResponse(json_encode, safe = False)
     return HttpResponse(json.dumps(json_encode), content_type="application/json")
 
-  return HttpResponse("none")
+  return HttpResponse("bad access")
 
 #@csrf_exempt
 #  def show_posts(request):
@@ -91,9 +157,8 @@ def upload(request) :
     if form.is_valid():
       image_file = upload_file(user = request.POST.get('username',False), image = request.FILES['image'])
       image_file.save()
-      #form.save()
-      return HttpResponse("<h1>upload success</h1>")
-
+      
+      return HttpResponse("%s" %image_file.image)
   return HttpResponse("<h1>upload fail</h1>")
 
 @csrf_exempt
