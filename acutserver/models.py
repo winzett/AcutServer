@@ -18,11 +18,6 @@ def user_directory_path(instance, filename):
       year=now.year,month=now.month, day=now.day, username=instance.user, filename=set_filename_format(now, instance, filename), )
   return path 
 
-class upload_file(models.Model):
-   user = models.CharField(max_length=100, default="no user name",  null=False)
-   image = models.ImageField(
-       upload_to=user_directory_path,
-       )
 
 class User(models.Model) :
   user_index = models.AutoField(primary_key=True)
@@ -40,11 +35,22 @@ class User(models.Model) :
           "user_img" : self.user_img,
         }
 
+class upload_file(models.Model):
+  #user = models.CharField(max_length=100, default="no user name",  null=False)
+  #file_index = models.AutoField(primary_key=True)
+  user_index = models.ForeignKey(User, default = '',db_column='user_index',on_delete=models.CASCADE)
+  image = models.ImageField(upload_to=user_directory_path,)
+
+
+
+
 class Post(models.Model) :
   post_index = models.AutoField(primary_key=True)
   user_index = models.ForeignKey(User, db_column = 'user_index', on_delete=models.CASCADE)
   post_img = models.CharField(max_length=100)
   post_content = models.TextField(null=True)
+  post_latitude = models.IntegerField(null=True)
+  post_longitude = models.IntegerField(null = True)
   post_like = models.PositiveIntegerField(default=0)
   challenge = models.BooleanField(default=False)
   champion = models.BooleanField(default=False)
@@ -108,6 +114,7 @@ class Photo_info (models.Model):
   photo_info_index = models.AutoField(primary_key=True)
   post_index =  models.ForeignKey(Post, db_column = 'post_index',
       on_delete=models.CASCADE)
+  info_type = models.PositiveIntegerField(default = 0)
   photo_meta_index =  models.ForeignKey(Photo_meta, db_column = 'photo_meta_index',
       on_delete=models.CASCADE)
 

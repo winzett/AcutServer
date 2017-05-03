@@ -13,5 +13,6 @@ urlpatterns =[
     url(r'^sign_up', views.sign_up, name='sign_up'),
     url(r'^sign_in', views.sign_in, name='sign_in'),
     url(r'^jsontest_page', views.jsontest, name='jsontest'),    
+    url(r'^post_photo', views.user_posts, name='user_post'),
     ]
 
