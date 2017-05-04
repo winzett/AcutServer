@@ -206,8 +206,10 @@ def upload(request) :
   if request.method == 'POST':
     form = upload_image_form(request.POST, request.FILES)
     
+    user_obj = User.objects.filter(user_index = request.POST.get('username',False))
+
     if form.is_valid():
-      image_file = upload_file(user = request.POST.get('username',False), image = request.FILES['image'])
+      image_file = upload_file(user_index = user_obj[0], image = request.FILES['image'])
       image_file.save()
       
       return HttpResponse("%s" %image_file.image)
@@ -216,7 +218,7 @@ def upload(request) :
 @csrf_exempt
 def download(request) :
   cursor = connection.cursor()
-  query_string = "select image from acutserver_upload_file where user = \"%s\"" %request.POST.get('username',False)
+  query_string = "select image from acutserver_upload_file where user_index = \"%s\"" %request.POST.get('username',False)
   cursor.execute(query_string)
   result = cursor.fetchall()
   image_url = "https://s3.ap-northeast-2.amazonaws.com/acut-fullsize-image/"

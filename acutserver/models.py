@@ -8,14 +8,14 @@ from django.db import models
 
 def set_filename_format(now, instance, filename): 
   return "{username}-{date}-{microsecond}{extension}".format(
-    username=instance.user, date=str(now.date()),
+    username=instance.user_index, date=str(now.date()),
     microsecond=now.microsecond, extension=os.path.splitext(filename)[1], ) 
   
 
 def user_directory_path(instance, filename):
   now =datetime.datetime.now()
   path = "images/{year}/{month}/{day}/{username}/{filename}".format(
-      year=now.year,month=now.month, day=now.day, username=instance.user, filename=set_filename_format(now, instance, filename), )
+      year=now.year,month=now.month, day=now.day, username=instance.user_index, filename=set_filename_format(now, instance, filename), )
   return path 
 
 
@@ -38,7 +38,7 @@ class User(models.Model) :
 class upload_file(models.Model):
   #user = models.CharField(max_length=100, default="no user name",  null=False)
   #file_index = models.AutoField(primary_key=True)
-  user_index = models.ForeignKey(User, default = '',db_column='user_index',on_delete=models.CASCADE)
+  user_index = models.ForeignKey(User, default = '',  db_column='user_index',on_delete=models.CASCADE)
   image = models.ImageField(upload_to=user_directory_path,)
 
 
