@@ -24,6 +24,7 @@ import boto
 import boto.s3.connection
 import json
 
+##################################<redirction> redirction related functions #####################################
 # Create your views here.
 def jsontest(request):
   return render(request,"./jsontest.html")
@@ -51,6 +52,7 @@ def downloadpage(request) :
 
 ## Main feed,comments, Good, pic info input(tag hash add, ), hash tag add, add to Hash table, tag search, challenge 
 
+###################################<comments> comments related functions #####################################
 #add5
 @csrf_exempt
 def get_post_comments(request):
@@ -83,8 +85,10 @@ def add_comment(request):
     return HttpResponse("success")
 
   return HttpResponse("bad access")
+###################################################################################################
 
-#add2
+
+###################################<post> post related functions  #####################################
 @csrf_exempt
 def user_posts(request):
   if request.method == 'POST':
@@ -140,7 +144,6 @@ def user_posts(request):
     return HttpResponse("success")
   return HttpResponse("bad access")
 
-#add1
 @csrf_exempt
 def get_user_posts(request):
   if request.method == 'POST':
@@ -159,6 +162,13 @@ def get_user_posts(request):
 
   return HttpResponse("bad access")
 
+###################################################################################################
+
+
+
+
+###################################<sign> sign in  and sign up #####################################
+
 @csrf_exempt
 def sign_up(request) :
   if request.method =='POST':
@@ -173,6 +183,7 @@ def sign_up(request) :
     return HttpResponse("save")
     
   return HttpResponse("bad access")
+
 
 @csrf_exempt
 def sign_in(request):
@@ -199,7 +210,10 @@ def sign_in(request):
 #  def show_posts(request):
 #    if request.method == 'POST':
 
+###################################################################################################
 
+
+###################################<upload> upload and download #####################################
 
 @csrf_exempt
 def upload(request) :
@@ -236,6 +250,7 @@ def download(request) :
   return HttpResponse("<h1>download fail</h1>")
 
 
+###################################################################################################
 
 """
 @csrf_exempt

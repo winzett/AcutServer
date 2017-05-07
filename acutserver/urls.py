@@ -1,6 +1,6 @@
 from django.conf.urls import url
 from . import views
-
+from .test import test
 urlpatterns =[
     url(r'^uploadpage',views.uploadpage, name='uploadpage'),
     url(r'^downloadpage',views.downloadpage, name='downloadpage'),
@@ -14,5 +14,6 @@ urlpatterns =[
     url(r'^sign_in', views.sign_in, name='sign_in'),
     url(r'^jsontest_page', views.jsontest, name='jsontest'),    
     url(r'^post_photo', views.user_posts, name='user_post'),
+    #url(r'^test/test', test/test.check, na:me='test'),
     ]
 
