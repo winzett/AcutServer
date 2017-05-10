@@ -10,20 +10,25 @@ from .models import Photo_info
 from .models import Hash_tag
 from .models import Hash_table
 from .models import Comment
+from .forms import upload_image_form
 
 from django.core.urlresolvers import reverse
-from .forms import upload_image_form
 from django.views.decorators.csrf import csrf_exempt
-from django.db import connection
-from operator import eq
-from django.http import JsonResponse
-from boto.s3.connection import S3Connection, Bucket, Key
-from django.core import serializers
-import os
-import boto
-import boto.s3.connection
-import json
+from django.db import connection, Error
 
+from django.core import serializers
+from django.core.files.uploadedfile import InMemoryUploadedFile,SimpleUploadedFile
+
+from PIL import Image
+from array import array
+
+import base64
+import cStringIO
+import os
+
+import json
+import sys
+import io
 ##################################<redirction> redirction related functions #####################################
 # Create your views here.
 def jsontest(request):
@@ -79,9 +84,13 @@ def add_comment(request):
     post_num = data['post_idx']
     cmt_content = data['comment']
     
-    cmt_obj = Comment(comment_content = cmt_content, post_index = post_num,
-        user_index = u_idx)
-    cmt_obj.save();
+    cmt_obj = Comment(comment_content = cmt_content, post_index = post_num, user_index = u_idx)
+    
+    try :
+      cmt_obj.save();
+    except Error as e:
+      return HttpResponse("%s" %e.message)
+
     return HttpResponse("success")
 
   return HttpResponse("bad access")
@@ -93,46 +102,101 @@ def add_comment(request):
 def user_posts(request):
   if request.method == 'POST':
 
-    data = json.load(request.POST)
-    u_idx = data['user_idx']
+    data = json.load(request)
+    u_idx = data['user_index']
     
-    form = upload_image_form(request.POST, request.FILES)
+    img = b'%s' %data['img']#.decode("utf-8")
+    #if img == False :
+    #  return HttpResponse("fail")
+    #img_encoding = base64.b64decode(img)
 
-    if form.is_valid():
-      image_file = upload_file(user_index = u_idx, image = request.FILES['image'])
+    #img_file = cStringIO.StringIO(img)
+    """img_content = InMemoryUploadedFile(img_file, 
+        field_name = 'file',
+        name = 'user_post',
+        content_type = 'image/jpeg',
+        size = sys.getsizeof(img_file),
+        charset=None )
+    """
+    #img_bytes = bytearray(img)
+    """with img as f:
+      byte = f.read(1)
+      while byte:
+        img_bytes.append(ord(byte))
+        byte = f.read(1)
+    """
+    #img_content = Image.open(io.BytesIO(img))
+
+    #with open("temp_img.jpg","wb") as fh:
+    #  fh.write(base64.decodebytes(img))
+    #return HttpResponse("%s" %sys.getsizeof(data['photo_info'] ))  
+
+
+    img_content = cStringIO.StringIO()
+    img_content.write(img.decode('base64'))
+    img_content.seek(0)
+    
+    img_result = SimpleUploadedFile('temp.jpg',img_content ,content_type='image/jpeg')
+
+    request.FILES[u'file'] = img_result
+    
+    p_img = ""
+
+    #form = upload_image_form(request.POST, request.FILES)
+    user_obj = User.objects.filter(user_index = u_idx)
+    
+    
+    #if form.is_valid():
+    image_file = upload_file(user_index = user_obj[0],user_id = user_obj[0].user_id, image = request.FILES[u'file'])
+    try :
       image_file.save()
-    else :
-      return HttpResponse("image upload fail")
-  
-    p_img = image_file.image
+      p_img = image_file.image
+    except Error as e :
+      return HttpResponse("%s" %e.message)
+    #else :
+    #  return HttpResponse("is not valid")
+
     p_info = data['photo_info']
-    p_long = data['longitude']
-    p_la = data['latitude']
+    p_loc = data['location']
     p_content = data['content']
-    hash_tags = data['hash_tags']
+  #  hash_tags = data['hash_tags']
 
 
     #have to think about the  search speed because it wiil compare all hash
     #tags with hash tables word
-
-    post_obj = Post(user_index = u_idx, post_img = p_img, post_content =  p_content, post_longitude = p_long, post_latitude = p_la) 
-    post_obj.save()
+    
+    post_obj = Post(user_index = user_obj[0], post_img = p_img, post_content = p_content, post_longitude = p_loc[0], post_latitude = p_loc[1]) 
+    try :
+      post_obj.save()
+    except Error as e :
+      return HttpResponse("%s" %e.message)
 
     for info in p_info:
       has_meta = Photo_meta.objects.filter( photo_info_name = info['photo_info_name'])
     
-      if has_meta.count() == 0:
+      if not has_meta.exists():
         meta_obj = Photo_meta(photo_info_name = info['photo_info_name'])
-        meta_obj.save()
-        has_meta.refresh_from_db() 
+        try :
+          meta_obj.save()
+        except Error as e:
+          return HttpResponse("%s" %e.message)
 
-      #photo_info_obj = Photo_info(photo_meta_index = "%s" %has_meta.photo_meta_index, photo_meta_index = "%s" %post_obj.post_index)        
+        has_meta.refresh_from_db() 
+        
+      photo_info_obj = Photo_info(photo_meta_index = "%s" %has_meta.photo_meta_index, info_type = info['info_type'], post_index = "%s" %post_obj.post_index) 
+
+      try : 
+        photo_info_obj.save()
+      except Error as e :
+        return HttpResponse("%s" %e.message)
+
+
       ######fixfixfixfixfixfix#########################################################################
-    
+    """ 
     for tags in hash_tags:
       has_tag = Hash_table.objects.filter(hash_name = tags['tag_name'])
 
-      if has_tag.count() == 0:
+      if not has_tag.exists():
         table_obj = Hash_table(hash_name = tags['tag_name']) 
         table_obj.save()
         has_tag.refresh_from_db()
@@ -140,7 +204,7 @@ def user_posts(request):
       hash_tag_obj = Hash_tag(hash_index = "%s" %has_tag.hash_index, post_index
           = "%s" %post_obj.post_index)
 
-
+    """
     return HttpResponse("success")
   return HttpResponse("bad access")
 
@@ -155,6 +219,8 @@ def get_user_posts(request):
     #server side but to s3 server thumbnails(do i need to make thumbnails?) 
     #user_info = User.objects.get(user_id = u_id)
     
+    #user_obj = User.objects.filter(user_index = u_idx)
+
     posts = Post.objects.filter(user_index = u_idx).order_by('post_time')
     
     json_encode = serializers.serialize('json',posts)
@@ -179,7 +245,11 @@ def sign_up(request) :
     u_email = data['user_email']
     sign_up_obj = User(user_id = u_id, user_pw = u_pw, user_name = u_name,user_email = u_email, user_type = "normal",ticket = 0)
     
-    sign_up_obj.save() 
+    try :
+      sign_up_obj.save()
+    except Error as e :
+      return HttpResponse("%s" %e.message)
+
     return HttpResponse("save")
     
   return HttpResponse("bad access")
@@ -191,18 +261,19 @@ def sign_in(request):
     
     json_obj = json.load(request)
     data = json_obj[0]
-    
     #data = request.POST
     
     u_id = data['user_id']
     u_pw = data['user_pw']
     
-    sign_in_user = User.objects.filter(user_id = u_id, user_pw =   u_pw).values('user_index','user_name','user_img','user_email','ticket')
-     
-    json_encode = serializers.serialize('json',sign_in_user)
-
-    #return JsonResponse(json_encode, safe = False)
-    return HttpResponse(json_encode, content_type="application/json")
+    res = User.objects.filter(user_id = u_id, user_pw = u_pw)
+    
+    if res.exists():
+      sign_in_user = res[0]
+    else :
+      return HttpResponse("there is no matched id and pw")
+    
+    return HttpResponse(json.dumps(sign_in_user.as_json), content_type="application/json")
 
   return HttpResponse("bad access")
 
@@ -223,7 +294,7 @@ def upload(request) :
     user_obj = User.objects.filter(user_index = request.POST.get('username',False))
 
     if form.is_valid():
-      image_file = upload_file(user_index = user_obj[0], image = request.FILES['image'])
+      image_file = upload_file(user_index = user_obj[0], user_id =  user_obj[0].user_id,image = request.FILES['image'])
       image_file.save()
       
       return HttpResponse("%s" %image_file.image)

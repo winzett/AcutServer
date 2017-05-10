@@ -8,20 +8,20 @@ from django.db import models
 
 def set_filename_format(now, instance, filename): 
   return "{username}-{date}-{microsecond}{extension}".format(
-    username=instance.user_index, date=str(now.date()),
+    username=instance.user_id, date=str(now.date()),
     microsecond=now.microsecond, extension=os.path.splitext(filename)[1], ) 
   
 
 def user_directory_path(instance, filename):
   now =datetime.datetime.now()
-  path = "images/{year}/{month}/{day}/{username}/{filename}".format(
-      year=now.year,month=now.month, day=now.day, username=instance.user_index, filename=set_filename_format(now, instance, filename), )
+  path = "images/{year}/{month}/{day}/{username}/{filename}.jpg".format(
+      year=now.year,month=now.month, day=now.day, username=instance.user_id, filename=set_filename_format(now, instance, filename), )
   return path 
 
 
 class User(models.Model) :
   user_index = models.AutoField(primary_key=True)
-  user_id = models.CharField(max_length=30)
+  user_id = models.CharField(max_length=30, unique = True)
   user_pw = models.CharField(max_length=20)
   user_name = models.CharField(max_length=20)
   user_img = models.CharField(max_length=100, null = True)
@@ -29,16 +29,22 @@ class User(models.Model) :
   user_type = models.CharField(max_length=20)
   ticket = models.PositiveIntegerField(default=0)
 
-  def as_dict(self):
-    return {
-          "user_name" : self.user_name,
-          "user_img" : self.user_img,
-        }
+  @property
+  def as_json(self):
 
+    return dict(
+        user_index = self.user_index,
+        user_name = self.user_name,
+        user_img = self.user_img,
+        user_email = self.user_email,
+        ticket = self.ticket,
+        )
+    
 class upload_file(models.Model):
   #user = models.CharField(max_length=100, default="no user name",  null=False)
   #file_index = models.AutoField(primary_key=True)
   user_index = models.ForeignKey(User, default = '',  db_column='user_index',on_delete=models.CASCADE)
+  user_id = models.CharField(max_length=30, default = '')
   image = models.ImageField(upload_to=user_directory_path,)
 
 
@@ -54,7 +60,7 @@ class Post(models.Model) :
   post_like = models.PositiveIntegerField(default=0)
   challenge = models.BooleanField(default=False)
   champion = models.BooleanField(default=False)
-  post_time = models.DateTimeField(default = datetime.datetime.now())
+  post_time = models.DateTimeField(auto_now_add = True)
 
 class Challenger(models.Model) :
   ch_index = models.AutoField(primary_key=True)
@@ -99,10 +105,8 @@ class Hash_tag(models.Model) :
 
 class Challenge_comment (models.Model) :
   ch_comment_index  = models.AutoField(primary_key=True)
-  post_index =  models.ForeignKey(Post, db_column = 'post_index',
-      on_delete=models.CASCADE)
-  user_index =  models.ForeignKey(User, db_column = 'user_index',
-      on_delete=models.CASCADE)
+  post_index =  models.ForeignKey(Post, db_column = 'post_index', on_delete=models.CASCADE)
+  user_index =  models.ForeignKey(User, db_column = 'user_index', on_delete=models.CASCADE)
   ch_comment_content = models.TextField(null=True)
   ch_comment_time = models.DateTimeField(auto_now_add=True)
 
@@ -112,11 +116,7 @@ class Photo_meta(models.Model) :
 
 class Photo_info (models.Model):
   photo_info_index = models.AutoField(primary_key=True)
-  post_index =  models.ForeignKey(Post, db_column = 'post_index',
-      on_delete=models.CASCADE)
+  post_index =  models.ForeignKey(Post, db_column = 'post_index', on_delete=models.CASCADE)
   info_type = models.PositiveIntegerField(default = 0)
-  photo_meta_index =  models.ForeignKey(Photo_meta, db_column = 'photo_meta_index',
-      on_delete=models.CASCADE)
-
-
+  photo_meta_index =  models.ForeignKey(Photo_meta, db_column = 'photo_meta_index', on_delete=models.CASCADE)
 
