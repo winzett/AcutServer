@@ -17,18 +17,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db import connection, Error
 
 from django.core import serializers
-from django.core.files.uploadedfile import InMemoryUploadedFile,SimpleUploadedFile
 
+from django.core.files.uploadedfile import SimpleUploadedFile
 from PIL import Image
-from array import array
-
 import base64
-import cStringIO
-import os
 
 import json
-import sys
-import io
 ##################################<redirction> redirction related functions #####################################
 # Create your views here.
 def jsontest(request):
@@ -100,51 +94,27 @@ def add_comment(request):
 ###################################<post> post related functions  #####################################
 @csrf_exempt
 def user_posts(request):
+
   if request.method == 'POST':
 
     data = json.load(request)
+    #data = request.POST
+    
     u_idx = data['user_index']
+    p_info = data['photo_info']
+    p_loc = data['location']
+    p_content = data['content']
+    img = data['img']
+
+
+    img_content = base64.b64decode(img)
+    img_result = SimpleUploadedFile('temp.jpg', img_content ,getattr(img,"content_type","application/octet-stream"))
     
-    img = b'%s' %data['img']#.decode("utf-8")
-    #if img == False :
-    #  return HttpResponse("fail")
-    #img_encoding = base64.b64decode(img)
-
-    #img_file = cStringIO.StringIO(img)
-    """img_content = InMemoryUploadedFile(img_file, 
-        field_name = 'file',
-        name = 'user_post',
-        content_type = 'image/jpeg',
-        size = sys.getsizeof(img_file),
-        charset=None )
-    """
-    #img_bytes = bytearray(img)
-    """with img as f:
-      byte = f.read(1)
-      while byte:
-        img_bytes.append(ord(byte))
-        byte = f.read(1)
-    """
-    #img_content = Image.open(io.BytesIO(img))
-
-    #with open("temp_img.jpg","wb") as fh:
-    #  fh.write(base64.decodebytes(img))
-    #return HttpResponse("%s" %sys.getsizeof(data['photo_info'] ))  
-
-
-    img_content = cStringIO.StringIO()
-    img_content.write(img.decode('base64'))
-    img_content.seek(0)
-    
-    img_result = SimpleUploadedFile('temp.jpg',img_content ,content_type='image/jpeg')
-
     request.FILES[u'file'] = img_result
     
     p_img = ""
-
     #form = upload_image_form(request.POST, request.FILES)
     user_obj = User.objects.filter(user_index = u_idx)
-    
     
     #if form.is_valid():
     image_file = upload_file(user_index = user_obj[0],user_id = user_obj[0].user_id, image = request.FILES[u'file'])
@@ -156,9 +126,7 @@ def user_posts(request):
     #else :
     #  return HttpResponse("is not valid")
 
-    p_info = data['photo_info']
-    p_loc = data['location']
-    p_content = data['content']
+    
   #  hash_tags = data['hash_tags']
 
 

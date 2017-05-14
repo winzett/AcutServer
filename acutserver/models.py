@@ -14,7 +14,7 @@ def set_filename_format(now, instance, filename):
 
 def user_directory_path(instance, filename):
   now =datetime.datetime.now()
-  path = "images/{year}/{month}/{day}/{username}/{filename}.jpg".format(
+  path = "images/{year}/{month}/{day}/{username}/{filename}".format(
       year=now.year,month=now.month, day=now.day, username=instance.user_id, filename=set_filename_format(now, instance, filename), )
   return path 
 
@@ -28,6 +28,7 @@ class User(models.Model) :
   user_email = models.EmailField()
   user_type = models.CharField(max_length=20)
   ticket = models.PositiveIntegerField(default=0)
+  state = models.BooleanField(default=False)
 
   @property
   def as_json(self):

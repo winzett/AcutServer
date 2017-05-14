@@ -136,6 +136,7 @@ STATIC_ROOT = os.path.join(PROJECT_DIR,'static')
 
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 
+DATA_UPLOAD_MAX_MEMORY_SIZE = None
 
 AWS_S3_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_S3_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
