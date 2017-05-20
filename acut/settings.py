@@ -145,8 +145,5 @@ AWS_STORAGE_BUCKET_NAME = "acut-fullsize-image"
 AWS_REGION = 'ap-northeast-2'
 AWS_S3_URL_PROTOCOL = 'https'
 AWS_QUERYSTRING_QUTH = False
-#AWS_S3_CALLING_FORMAT = boto.s3.connection.OrdinaryCallingFormat()
 AWS_S3_HOST = 's3.ap-northeast-2.amazonaws.com' 
-#% AWS_STORAGE_BUCKET_NAME
 MEDIA_URL = 'rn:aws:s3:::%s/'%AWS_STORAGE_BUCKET_NAME
-#MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

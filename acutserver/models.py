@@ -26,7 +26,7 @@ class User(models.Model) :
   user_name = models.CharField(max_length=20)
   user_img = models.CharField(max_length=100, null = True)
   user_email = models.EmailField()
-  user_type = models.CharField(max_length=20)
+  user_type = models.CharField(max_length=20, default = "normal")
   ticket = models.PositiveIntegerField(default=0)
   state = models.BooleanField(default=False)
 

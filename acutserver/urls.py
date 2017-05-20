@@ -1,18 +1,21 @@
 from django.conf.urls import url
-from . import views
 
+from .views import test
+from .views import membership_management
+from .views import post_and_comment
 urlpatterns =[
-    url(r'^uploadpage',views.uploadpage, name='uploadpage'),
-    url(r'^downloadpage',views.downloadpage, name='downloadpage'),
-    url(r'^upload',views.upload, name='upload'),
-    url(r'^download',views.download, name='download'),
-    url(r'^json_decoding_page',views.json_decoding_page, name='json_decoding_page'),
-    url(r'^json_decode',views.json_decode, name='json_decode'),
-    #url(r'^delete_photopage',views.delete_photopage, name='delete_photopage'),
-    #url(r'^delete_photo',views.delete_photo, name='delete_photo'),
-    url(r'^sign_up', views.sign_up, name='sign_up'),
-    url(r'^sign_in', views.sign_in, name='sign_in'),
-    url(r'^jsontest_page', views.jsontest, name='jsontest'),    
-    url(r'^post_photo', views.user_posts, name='user_post'),
+    url(r'^uploadpage',test.uploadpage, name='uploadpage'),
+    url(r'^downloadpage',test.downloadpage, name='downloadpage'),
+    url(r'^json_decode',test.json_decode, name='json_decode'),
+    url(r'^jsontest_page', test.jsontest, name='jsontest'),
+    url(r'^json_decoding_page',test.json_decoding_page, name='json_decoding_page'),
+    url(r'^upload',test.upload, name='upload'),
+    url(r'^download',test.download, name='download'),
+
+    url(r'^sign_up', membership_management.sign_up, name='sign_up'),
+    url(r'^sign_in', membership_management.sign_in, name='sign_in'),
+    
+    url(r'^post_photo', post_and_comment.user_posts, name='user_post'),
+
     ]
 
