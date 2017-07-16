@@ -19,5 +19,6 @@ from django.contrib import admin
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^acutserver/',include('acutserver.urls', namespace='image_management')),
+    url(r'^acutserver/',include('acutserver.core.urls', namespace='acutserver')),
+    #url(r'^api/', include('acutserver.core.urls', namespace = 'rest_acutserver')),
   ]

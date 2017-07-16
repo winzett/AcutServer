@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from acutserver.form.forms import user_form
-from acutserver.models import User
+from acutserver.core.models import User
 
 import json
 
@@ -23,6 +23,7 @@ def sign_up(request) :
     except Error as e :
       return HttpResponse("%s" %e.message)
     """
+
     if form.is_valid : 
       form.save()
       return HttpResponse("save")
@@ -43,14 +44,14 @@ def sign_in(request):
     u_id = data['user_id']
     u_pw = data['user_pw']
     
-    res = User.objects.filter(user_id = u_id, user_pw = u_pw)
+    res = User.objects.filter(user_id = u_id, pw = u_pw).values("index","user_name","profile_thumb","email")
     
     if res.exists():
       sign_in_user = res[0]
     else :
       return HttpResponse("there is no matched id and pw")
     
-    return HttpResponse(json.dumps(sign_in_user.as_json), content_type="application/json")
+    return HttpResponse(json.dumps(sign_in_user), content_type="application/json")
 
   return HttpResponse("bad access")
 

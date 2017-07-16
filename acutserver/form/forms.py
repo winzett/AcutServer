@@ -1,5 +1,5 @@
 from django import forms
-from acutserver.models import User
+from acutserver.core.models import User
 class upload_image_form(forms.Form):
   image = forms.ImageField()
 
