@@ -96,7 +96,7 @@ def show_liked_battle_results(request):
     for like in user_like_battles:
       if not like.checked:
         unchecked_list.append(like.battle_log_id)
-    elif not like.battle_log_id.finish:
+      elif like.battle_log_id.finish == False:
         unchecked_list.append(like.battle_log_id)
 
     if unchecked_list.count == 0 :
@@ -176,7 +176,7 @@ def show_my_battle_results(request):
 
     unchecked_list = list()
     for battle in my_battles:
-      if not battle.finish && user_obj[0].last_session <= battle.finish_time:
+      if not battle.finish and user_obj[0].last_session <= battle.finish_time:
         unchecked_list.append(battle)
 
     if unchecked_list.count == 0 :

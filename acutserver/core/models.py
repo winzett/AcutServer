@@ -38,7 +38,7 @@ class User(models.Model) :
   last_session = models.DateTimeField()
   facebook = models.CharField(max_length=100)
   kakao = models.CharField(max_length=100)
-  alarm_on = models.BooleanField(default=false)
+  alarm_on = models.BooleanField(default= False)
 
   class Meta :
     verbose_name = "User"

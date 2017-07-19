@@ -12,26 +12,17 @@ from acutserver.views import battle_management
 
 urlpatterns =[
     #url(r'^api_auth/', include('rest_framework.urls', namespace = 'rest_framework')),
-    #url(r'^uploadpage',test.uploadpage, name='uploadpage'),
-    #url(r'^downloadpage',test.downloadpage, name='downloadpage'),
-    #url(r'^json_decode',test.json_decode, name='json_decode'),
-    #url(r'^jsontest_page', test.jsontest, name='jsontest'),
-    #url(r'^json_decoding_page',test.json_decoding_page, name='json_decoding_page'),
-    #url(r'^upload',test.upload, name='upload'),
-    #url(r'^download',test.download, name='download'),
-
-    #url(r'^sign_up', membership_management.sign_up, name='sign_up'),
-    #url(r'^sign_in', membership_management.sign_in, name='sign_in'),
-    
-    #url(r'^post_photo', post_and_comment.user_posts, name='user_post'),
-    #url(r'^test_page', test_page.uploadpage, name="upload"),
     url(r'^sign_in', membership_management.sign_in, name='sign_in'),
     url(r'^upload_img', test_page.upload, name='upload'),
     url(r'^upload_page', test_page.uploadpage, name='upload_page'),
     url(r'^show_lounge', photo_management.show_lounge, name='lounge'),
     url(r'^show_battles', battle_management.show_battles, name='show_battles'),
     url(r'^create_photo', photo_management.create, name='create'),
-    url(r'^show_battle_results', battle_management.show_battle_results, name='show_battle_results'),
+    url(r'^show_liked_battles', battle_management.show_liked_battles, name='show_liked_battles'),
+    url(r'^show_liked_battle_results', battle_management.show_liked_battle_results, name='show_liked_battle_results'),
+    url(r'^show_my_battles', battle_management.show_my_battles, name='show_my_battles'),
+    url(r'^show_my_battle_results', battle_management.show_my_battle_results, name='show_my_battle_results'),
+
      url(r'^show_battles', battle_management.show_battles,'show_battles'),
 
     ]
