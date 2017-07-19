@@ -7,17 +7,17 @@ from django.db import models
 
 # Create your models here.
 
-def set_filename_format(now, instance, filename): 
+def set_filename_format(now, instance, filename):
   return "{username}-{date}-{microsecond}{extension}".format(
     username=instance.user_id, date=str(now.date()),
-    microsecond=now.microsecond, extension=os.path.splitext(filename)[1], ) 
-  
+    microsecond=now.microsecond, extension=os.path.splitext(filename)[1], )
+
 
 def user_directory_path(instance, filename):
   now =datetime.datetime.now()
   path = "images/{year}/{month}/{day}/{username}/{filename}".format(
       year=now.year,month=now.month, day=now.day, username=instance.user_id, filename=set_filename_format(now, instance, filename), )
-  return path 
+  return path
 
 
 class User(models.Model) :
@@ -38,17 +38,18 @@ class User(models.Model) :
   last_session = models.DateTimeField()
   facebook = models.CharField(max_length=100)
   kakao = models.CharField(max_length=100)
-  
+  alarm_on = models.BooleanField(default=false)
+
   class Meta :
     verbose_name = "User"
     verbose_name_plural = "Users"
 
   def save(self, *args, **kwargs):
-    self.last_session = timezome.now()
+    self.last_session = timezone.now()
     return super(User,self).save(*args, **kwarg)
-    
+
   def as_json(self):
-          
+
     return dict(
         index = self.index,
         user_name = self.user_name,
@@ -88,7 +89,7 @@ class Battle_Log(models.Model) :
   p2_vote = models.PositiveIntegerField(default = 0)
   skip = models.PositiveIntegerField(default = 0)
   finish = models.BooleanField(default = False)
-  
+
 
 
 
@@ -98,6 +99,6 @@ class Like_table(models.Model):
   battle_log_id = models.ForeignKey(Battle_Log, db_column = 'battle_log_id')
   photo_id = models.ForeignKey(Photo, db_column = 'photo_index')
   checked = models.BooleanField(default=False)
+  created_at = models.DateTimeField(default = timezone.now)
   class Meta(object):
     index_together = 'user_id', 'battle_log_id', 'photo_id'
-
