@@ -99,7 +99,7 @@ def create(request):
 def show_lounge(request):
   if request.method == 'POST':
 
-    lounge_photos = Photo.objects.filter(lounge = True).exclude(visible = false).order_by('upload_time')
+    lounge_photos = Photo.objects.filter(lounge = True).exclude(visible = False).order_by('upload_time')
 
     if lounge_photos.count  == 0 :
       return HttpResponse("no photos in lounge")
@@ -113,7 +113,10 @@ def show_lounge(request):
       json_str += "{'img':"
       json_str += ('"'+img_prefix+str(p.img)+'",')
       json_str += "'text':"
-      json_str += ('"'++str(p.text)+'"}')
+      if p.text == None:
+        json_str += ('" "}')
+      else:
+        json_str += ('"'+p.text+'"}')
 
       if index != len(lounge_photos)-1 :
         json_str += ","
@@ -149,7 +152,10 @@ def show_my_lounge(request):
       json_str += '{"img":'
       json_str += ('"'+img_prefix+str(p.img)+'",')
       json_str += "'text':"
-      json_str += ('"'++str(p.text)+'"}')
+      if p.text is None:
+        json_str += ('" "}')
+      else :
+        json_str += ('"'+str(p.text)+'"}')
 
       if index != len(lounge_photos)-1:
         json_str += ","
