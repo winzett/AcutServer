@@ -17,6 +17,11 @@ from django.conf.urls import url, include
 from django.contrib import admin
 #from acutserver import views as file_management
 
+#SOCIAL_AUTH_URL_NAMESPACE = 'social'
+
+#LOGIN_REDIRECT_URL='/acutserver/'
+#redirect to somewehre 
+
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^acutserver/',include('acutserver.core.urls', namespace='acutserver')),

@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'acutserver',
+    #'social_django',
     #'rest_framework',
     #'rest_framework_swagger',
 ]
@@ -93,6 +94,12 @@ DATABASES = {
 
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
+
+#AUTHENTICATION_BACKENDS = [
+#        'social_core.backends.google.GoogleOAuth2', # Google
+#        'social_core.backends.facebook.FacebookOAuth2', # Facebook
+#        'django.contrib.auth.backends.ModelBackend', 
+#]
 
 AUTH_PASSWORD_VALIDATORS = [
     {
