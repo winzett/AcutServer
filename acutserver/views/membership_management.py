@@ -4,8 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from acutserver.form.forms import user_form
 from acutserver.core.models import User
-from passlib.apps import custom_app_context as pwd_context
-
+from passlib.hash import pbkdf2_sha256
 
 import json
 
@@ -13,7 +12,7 @@ import json
 def sign_up(request) :
     if request.method =='POST':
         data = json.load(request)
-        data['user_pw'] = pwd_context.hash(data['user_pw'])
+        data['user_pw'] = pbkdf2_sha256.hash(data['user_pw'])
 
         form = user_form(data)
         if form.is_valid :
@@ -30,16 +29,16 @@ def sign_in(request):
     if request.method =='POST':
         json_obj = json.load(request)
         data = json_obj[0]
-
+        #data = json.load(request)
         u_id = data['user_id']
 
-        res = User.objects.filter(user_id = u_id).values("index","user_name","profile_thumb","email")
+        res = User.objects.filter(user_id = u_id).values("index","pw","user_name","profile_thumb","email")
 
         if res.exists():
             sign_in_user = res[0]
-            hashed_pw = sign_in_user.user_pw
+            hashed_pw = sign_in_user['pw']
 
-            if not pwd_context.verify(data['user_pw'], hashed_pw):
+            if not pbkdf2_sha256.verify(data['user_pw'], hashed_pw):
                 return HttpResponse("wrong pw")
 
         else :

@@ -3,9 +3,10 @@
     <body>
       <form action="/acutserver/sign_in"
             method="post"
+
             enctype="application/json">
-            <input name="user_id"/>
-            <input name="user_pw"/>
+            <input name="user[user_id]"/>
+            <input name="user[user_pw]"/>
 
             <input type="submit"
                    value="submit"/>

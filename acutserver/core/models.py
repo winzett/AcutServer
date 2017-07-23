@@ -24,7 +24,7 @@ class User(models.Model) :
     index = models.AutoField(primary_key=True)
     user_name = models.CharField(max_length = 30, null = True);
     user_id = models.CharField(max_length=30, unique = True)
-    pw = models.CharField(max_length=20)
+    pw = models.CharField(max_length=100)
     nickname = models.CharField(max_length=20, unique = True)
     profile_thumb = models.CharField(max_length=100, null = True)
     email = models.EmailField(null = True, db_index = True)
