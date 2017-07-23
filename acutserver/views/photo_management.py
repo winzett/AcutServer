@@ -98,7 +98,7 @@ def create(request):
 def show_lounge(request):
     if request.method == 'POST':
 
-        lounge_photos = Photo.objects.filter(lounge = True).exclude(visible = false).order_by('upload_time')
+        lounge_photos = Photo.objects.filter(lounge = True).exclude(visible = False).order_by('upload_time')
 
         if lounge_photos.count  == 0 :
             return HttpResponse("no photos in lounge")
@@ -117,8 +117,9 @@ def show_lounge(request):
             else :
                 json_str += ('"'++str(p.text)+'"}')
 
-           if index != len(lounge_photos)-1 :
-               json_str += ","
+
+            if index != len(lounge_photos)-1 :
+                json_str += ","
             index += 1
 
         json_str += "]}"
@@ -130,34 +131,20 @@ def show_lounge(request):
 
 @csrf_exempt
 def show_my_lounge(request):
-
     if request.method == 'POST':
-        data = json.load(request)
-        user_idx = data['user_index']
-
-        user_obj = User.objects.filter(index = user_idx)
-
-        my_lounge_photos = Photo.objects.filter(user = user_obj,lounge = True, visible = true).order_by('upload_time')
-        # json_encode = serializers.serialize('json',my_lounge_photos)
-        if my_lounge_photos.count == 0 :
-            return HttpResponse("no photo in my lounge")
-
-        img_prefix = "https://s3.ap-northeast-2.amazonaws.com/acut-fullsize-image/"
-
-        json_str = '{"my_lounge_photos":['
-
         index = 0
 
         for p in my_lounge_photos:
             json_str += '{"img":'
             json_str += ('"'+img_prefix+str(p.img)+'",')
             json_str += "'text':"
-            if p.text == None:
+            
+            if p.text is None:
                 json_str += ('" "}')
             else :
-                json_str += ('"'++str(p.text)+'"}')
+                json_str += ('"'+str(p.text)+'"}')
 
-            if index != len(lounge_photos)-1 :
+            if index != len(lounge_photos)-1:
                 json_str += ","
             index += 1
 
