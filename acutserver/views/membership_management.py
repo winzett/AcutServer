@@ -11,18 +11,7 @@ import json
 def sign_up(request) :
     if request.method =='POST':
         data = json.load(request)
-        """u_id = data['user_id']
-        u_pw = data['user_pw']
-        u_name = data['user_name']
-        u_email = data['user_email']
-        sign_up_obj = User(user_id = u_id, user_pw = u_pw, user_name = u_name,user_email = u_email, user_type = "normal",ticket = 0)
-        """
         form = user_form(data)
-        """try :
-          sign_up_obj.save()
-        except Error as e :
-          return HttpResponse("%s" %e.message)
-        """
 
         if form.is_valid :
             form.save()
@@ -36,10 +25,8 @@ def sign_up(request) :
 @csrf_exempt
 def sign_in(request):
     if request.method =='POST':
-
         json_obj = json.load(request)
         data = json_obj[0]
-        #data = request.POST
 
         u_id = data['user_id']
         u_pw = data['user_pw']
