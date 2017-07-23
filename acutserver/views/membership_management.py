@@ -4,6 +4,8 @@ from django.views.decorators.csrf import csrf_exempt
 
 from acutserver.form.forms import user_form
 from acutserver.core.models import User
+from passlib.apps import custom_app_context as pwd_context
+
 
 import json
 
@@ -11,18 +13,7 @@ import json
 def sign_up(request) :
     if request.method =='POST':
         data = json.load(request)
-        """u_id = data['user_id']
-        u_pw = data['user_pw']
-        u_name = data['user_name']
-        u_email = data['user_email']
-        sign_up_obj = User(user_id = u_id, user_pw = u_pw, user_name = u_name,user_email = u_email, user_type = "normal",ticket = 0)
-        """
-        form = user_form(data)
-        """try :
-          sign_up_obj.save()
-        except Error as e :
-          return HttpResponse("%s" %e.message)
-        """
+        data['user_pw'] = pwd_context.hash(data['user_pw'])
 
         if form.is_valid :
             form.save()
@@ -42,12 +33,16 @@ def sign_in(request):
         #data = request.POST
 
         u_id = data['user_id']
-        u_pw = data['user_pw']
 
-        res = User.objects.filter(user_id = u_id, pw = u_pw).values("index","user_name","profile_thumb","email")
+        res = User.objects.filter(user_id = u_id).values("index","user_name","profile_thumb","email")
 
         if res.exists():
             sign_in_user = res[0]
+            hashed_pw = sign_in_user.user_pw
+
+            if not pwd_context.verify(data['user_pw'], hashed_pw):
+                return HttpResponse("wrong pw")
+
         else :
             return HttpResponse("there is no matched id and pw")
 

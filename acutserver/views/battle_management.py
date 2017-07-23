@@ -169,7 +169,7 @@ def vote(request):
             return HttpResponse("no photo")
         photo = photo[0]
 
-        vote_to = battle.p1_id.index == liked_photo ? battle.p1_vote : battle.p2_vote
+        vote_to = battle.p1_vote if battle.p1_id.index == liked_photo else battle.p2_vote
         vote_to += 1
         battle.save
 
