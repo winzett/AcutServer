@@ -39,9 +39,7 @@ def show_battles(request):
         return HttpResponse(json_encode, content_type= "application/json")
     return HttpResponse("bad access")
 
-@csrf_exempt
-def add_like(request):
-    return HttpResponse("bad access")
+
 
 @csrf_exempt
 def show_liked_battles(request):

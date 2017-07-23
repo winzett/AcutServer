@@ -75,6 +75,7 @@ class Photo(models.Model) :
     lounge= models.BooleanField(default=True)
     new = models.BooleanField(default=True)
     upload_time = models.DateTimeField(default=timezone.now, auto_now =True)
+    priority = models.PositiveIntegerField(default = 0)
 
     class Meta :
         verbose_name = "Photo"
@@ -90,7 +91,6 @@ class Battle_Log(models.Model) :
     p2_vote = models.PositiveIntegerField(default = 0)
     skip = models.PositiveIntegerField(default = 0)
     finish = models.BooleanField(default = False)
-
 
 
 

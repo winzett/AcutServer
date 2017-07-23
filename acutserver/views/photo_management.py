@@ -112,7 +112,10 @@ def show_lounge(request):
             json_str += "{'img':"
             json_str += ('"'+img_prefix+str(p.img)+'",')
             json_str += "'text':"
-            json_str += ('"'++str(p.text)+'"}')
+            if p.text == None:
+                json_str += ('" "}')
+            else :
+                json_str += ('"'++str(p.text)+'"}')
 
            if index != len(lounge_photos)-1 :
                json_str += ","
@@ -149,7 +152,10 @@ def show_my_lounge(request):
             json_str += '{"img":'
             json_str += ('"'+img_prefix+str(p.img)+'",')
             json_str += "'text':"
-            json_str += ('"'++str(p.text)+'"}')
+            if p.text == None:
+                json_str += ('" "}')
+            else :
+                json_str += ('"'++str(p.text)+'"}')
 
             if index != len(lounge_photos)-1 :
                 json_str += ","
