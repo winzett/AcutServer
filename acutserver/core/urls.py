@@ -1,7 +1,7 @@
 from django.conf.urls import url, include
 #from rest_framework import routers
 #from .views import UserViewSet, PhotoViewSet
-#from core.views import 
+#from core.views import
 #from acutserver.views import test
 #from acutserver.views import membership_management
 #from acutserver.views import post_and_comment
@@ -12,6 +12,7 @@ from acutserver.views import battle_management
 
 urlpatterns =[
     #url(r'^api_auth/', include('rest_framework.urls', namespace = 'rest_framework')),
+    url(r'^testsign_in', test_page.signin_test, name='sign_in_test'),
     url(r'^sign_in', membership_management.sign_in, name='sign_in'),
     url(r'^upload_img', test_page.upload, name='upload'),
     url(r'^upload_page', test_page.uploadpage, name='upload_page'),
