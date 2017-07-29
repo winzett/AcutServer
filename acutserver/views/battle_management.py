@@ -18,6 +18,7 @@ def make_json_arr(battle):
 
         if index != len(battle)-1 :
             json_str += ", "
+        index += 1
 
     json_str += "]}"
 
@@ -27,11 +28,9 @@ def make_json_arr(battle):
 def show_battles(request):
     if request.method == 'POST':
         data = json.load(request)
-        user_idx = data['user_index']
-        user_obj = User.objects.filter(index = user_idx)
+        user_index = data[0]['user_index']
 
         #likes = Like_table.objects.filter(user_id = user_obj)
-
         battles = Battle_Log.objects.all()#.exclude(index__in = likes)
 
         json_encode = make_json_arr(battles)
@@ -45,12 +44,13 @@ def show_battles(request):
 def show_liked_battles(request):
     if request.method == 'POST':
         data = json.load(request)
-        user_obj = User.objects.filter(index = data['user_index'])
+        user_index = data[0]['user_index']
+        user_obj = User.objects.filter(index = user_index)
 
         if user_obj.count == 0 :
             return HttpResponse("no user")
-
-        user_like_list = Like_table.objects.filter(user_id = user_obj[0]).only(battle_log_id, photo_id, checked)
+        user_obj = user_obj[0]
+        user_like_list = Like_table.objects.filter(user_id = user_obj).only(battle_log_id, photo_id, checked)
 
         if user_like_list.count == 0 :
             return HttpResponse("no battle you like")
@@ -69,12 +69,14 @@ def show_liked_battles(request):
 def show_liked_battle_results(request):
     if request.method == "POST":
         data = json.load(request)
-        user_obj = User.objects.filter(index = data['user_index'])
+        user_index = data[0]['user_index']
+        user_obj = User.objects.filter(index = user_index))
 
         if user_obj.count == 0 :
             return HttpResponse("no user")
 
-        user_like_battles = Like_table.objects.filter(user_id = user_obj[0]).only(battle_log_id, photo_id, checked)
+        user_obj = user_obj[0]
+        user_like_battles = Like_table.objects.filter(user_id = user_obj).only(battle_log_id, photo_id, checked)
 
         if user_like_battles.count == 0 :
             return HttpResponse("no battle you like")
@@ -101,12 +103,15 @@ def show_liked_battle_results(request):
 def show_my_battles(request):
     if request.method == 'POST':
         data = json.load(request)
-        user_obj = User.objects.filter(index = data['user_index'])
+        user_index = data[0]['user_index']
+        user_obj = User.objects.filter(index = user_index)
 
         if user_obj.count == 0 :
             return HttpResponse("no user")
 
-        my_battles = Battle_Log.objects.filter(Q(p1 = user_obj[0]) | Q(p2 = user_obj[0]))
+        user_obj = user_obj[0]
+
+        my_battles = Battle_Log.objects.filter(Q(p1 = user_obj) | Q(p2 = user_obj))
 
         if my_battles == 0 :
             return HttpResponse("no battle")
@@ -121,12 +126,14 @@ def show_my_battles(request):
 def show_my_battle_results(request):
     if request.method == "POST":
         data = json.load(request)
-        user_obj = User.objects.filter(index = data['user_index'])
+        user_index = data[0]['user_index']
+        user_obj = User.objects.filter(index = user_index)
 
         if user_obj.count == 0 :
             return HttpResponse("no user")
 
-        my_battles = Battle_Log.objects.filter(Q(p1 = user_obj[0]) | Q(p2 = user_obj[0]))
+        user_obj = user_obj[0]
+        my_battles = Battle_Log.objects.filter(Q(p1 = user_obj) | Q(p2 = user_obj))
 
         if my_battles == 0 :
             return HttpResponse("no battle")
@@ -134,7 +141,7 @@ def show_my_battle_results(request):
 
         unchecked_list = list()
         for battle in my_battles:
-            if not battle.finish and user_obj[0].last_session <= battle.finish_time:
+            if not battle.finish and user_obj.last_session <= battle.finish_time:
                 unchecked_list.append(battle)
 
         if unchecked_list.count == 0 :
@@ -150,8 +157,8 @@ def show_my_battle_results(request):
 def vote(request):
     if request.method == "POST":
         data =json.load(request)
-        user_index =  data["user_index"]
-        liked_photo = data["liked_photo"]
+        user_index =  data[0]["user_index"]
+        liked_photo = data[0]["liked_photo"]
         battle_log_index = data["battle_log"]
 
         user_obj = User.objects.filter(index = user_index)
