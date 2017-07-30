@@ -107,7 +107,7 @@ def show_lounge(request):
 
 
         json_str='{"lounge_photos":['
-        index = 0;
+        index = 0
         for p in lounge_photos :
             json_str += "{'img':"
             json_str += ('"'+img_prefix+str(p.img)+'",')
@@ -115,7 +115,7 @@ def show_lounge(request):
             if p.text == None:
                 json_str += ('" "}')
             else :
-                json_str += ('"'++str(p.text)+'"}')
+                json_str += ('"'+p.text+'"}')
 
 
             if index != len(lounge_photos)-1 :
@@ -136,14 +136,18 @@ def show_my_lounge(request):
         u_idx = data['user_index']
         user_obj = User.objects.filter(index = u_idx)[0]
 
-        my_lounge_photos = Photo.objects.filter(lounge = True, user= user_obj).exclude(visible = False).order_by('upload_time')
 
+        if user_obj.count == 0:
+            return HttpResponse("no User")
+
+        my_lounge_photos = Photo.objects.filter(user = user_obj[0],lounge = True).exclude(visible = False)
         json_str='{"lounge_photos":['
         index = 0;
+
         for p in my_lounge_photos:
             json_str += '{"img":'
             json_str += ('"'+img_prefix+str(p.img)+'",')
-            json_str += "'text':"
+            json_str += '"text":'
 
             if p.text is None:
                 json_str += ('" "}')

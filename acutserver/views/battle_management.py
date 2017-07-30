@@ -55,7 +55,7 @@ def show_liked_battles(request):
         if user_obj.count == 0 :
             return HttpResponse("no user")
         user_obj = user_obj[0]
-        user_like_list = Like_table.objects.filter(user_id = user_obj).only(battle_log_id, photo_id, checked)
+        user_like_list = Like_table.objects.filter(user_id = user_obj)
 
         if user_like_list.count == 0 :
             return HttpResponse("no battle you like")
@@ -75,13 +75,13 @@ def show_liked_battle_results(request):
     if request.method == "POST":
         data = json.load(request)
         user_index = data[0]['user_index']
-        user_obj = User.objects.filter(index = user_index))
+        user_obj = User.objects.filter(index = user_index)
 
         if user_obj.count == 0 :
             return HttpResponse("no user")
 
         user_obj = user_obj[0]
-        user_like_battles = Like_table.objects.filter(user_id = user_obj).only(battle_log_id, photo_id, checked)
+        user_like_battles = Like_table.objects.filter(user_id = user_obj)
 
         if user_like_battles.count == 0 :
             return HttpResponse("no battle you like")
