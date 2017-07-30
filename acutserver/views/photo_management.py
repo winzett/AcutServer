@@ -136,7 +136,7 @@ def show_my_lounge(request):
         u_idx = data['user_index']
         user_obj = User.objects.filter(index = u_idx)[0]
 
-        lounge_photos = Photo.objects.filter(lounge = True, user= user_obj).exclude(visible = False).order_by('upload_time')
+        my_lounge_photos = Photo.objects.filter(lounge = True, user= user_obj).exclude(visible = False).order_by('upload_time')
 
         json_str='{"lounge_photos":['
         index = 0;
