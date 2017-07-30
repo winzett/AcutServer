@@ -24,7 +24,7 @@ def create(request):
         u_idx = data['user_index']
         #p_info = data['photo_info']
         #p_loc = data['location']
-        img_content = data['content']
+        img_content = data['text']
         img = data['img']
 
         img_content = base64.b64decode(img)
@@ -132,13 +132,14 @@ def show_lounge(request):
 @csrf_exempt
 def show_my_lounge(request):
     if request.method == 'POST':
-        index = 0
         data = json.load(request)
         u_idx = data['user_index']
         user_obj = User.objects.filter(index = u_idx)[0]
 
         lounge_photos = Photo.objects.filter(lounge = True, user= user_obj).exclude(visible = False).order_by('upload_time')
 
+        json_str='{"lounge_photos":['
+        index = 0;
         for p in my_lounge_photos:
             json_str += '{"img":'
             json_str += ('"'+img_prefix+str(p.img)+'",')

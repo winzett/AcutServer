@@ -12,7 +12,7 @@ import json
 def sign_up(request) :
     if request.method =='POST':
         data = json.load(request)
-        data['user_pw'] = pbkdf2_sha256.hash(data['user_pw'])
+        data['pw'] = pbkdf2_sha256.hash(data['pw'])
 
         form = user_form(data)
         if form.is_valid :
@@ -38,7 +38,7 @@ def sign_in(request):
             sign_in_user = res[0]
             hashed_pw = sign_in_user['pw']
 
-            if not pbkdf2_sha256.verify(data['user_pw'], hashed_pw):
+            if not pbkdf2_sha256.verify(data['pw'], hashed_pw):
                 return HttpResponse("wrong pw")
 
         else :
