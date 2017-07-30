@@ -12,8 +12,13 @@ def make_json_arr(battle):
     index = 0
 
     for b in battle:
-        json_str += ("{'img' : ['"+img_prefix+str(b.p1_id.img)+"', '"+img_prefix+str(b.p2_id.img)+"'], 'battle_log' : '"+str(b.index)+"'")
-        json_str += ", 'likes' : "
+        json_str += "{'img' : "
+        json_str += ("['"+img_prefix+str(b.p1_id.img)+"', '"+img_prefix+str(b.p2_id.img)+"'],")
+        json_str += "'text' :"
+        json_str += (" ['"+str(b.p1_id.text)+"', '"+str(b.p2_id.text)+"'],")
+        json_str += "'battle_log' : "
+        json_str += ("'"+str(b.index)+"',")
+        json_str += "'likes' : "
         json_str += ("['"+str(b.p1_vote)+"','"+str(b.p2_vote)+"']}")
 
         if index != len(battle)-1 :
@@ -159,7 +164,7 @@ def vote(request):
         data =json.load(request)
         user_index =  data[0]["user_index"]
         liked_photo = data[0]["liked_photo"]
-        battle_log_index = data["battle_log"]
+        battle_log_index = data[0]["battle_log"]
 
         user_obj = User.objects.filter(index = user_index)
         if user_obj.count == 0:
