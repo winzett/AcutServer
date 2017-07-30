@@ -26,7 +26,7 @@ class User(models.Model) :
     user_id = models.CharField(max_length=30, unique = True)
     pw = models.CharField(max_length=100)
     nickname = models.CharField(max_length=20, unique = True)
-    profile_thumb = models.CharField(max_length=100, null = True)
+    profile_thumb = models.ImageField(upload_to=user_directory_path, null = True)
     email = models.EmailField(null = True, db_index = True)
     user_type = models.CharField(max_length=20, default = "normal")
     vote = models.PositiveIntegerField(default=0)
