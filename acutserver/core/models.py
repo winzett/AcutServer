@@ -102,5 +102,3 @@ class Like_table(models.Model):
     photo_id = models.ForeignKey(Photo, db_column = 'photo_index')
     checked = models.BooleanField(default=False)
     created_at = models.DateTimeField(default = timezone.now)
-    class Meta(object):
-        index_together = 'user_id', 'battle_log_id', 'photo_id'
