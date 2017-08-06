@@ -15,6 +15,8 @@ def make_json_arr(battle):
     for b in battle:
         json_str += "{'img' : "
         json_str += ("['"+img_prefix+str(b.p1_id.img)+"', '"+img_prefix+str(b.p2_id.img)+"'],")
+        json_str += "{'user_index' : "
+        json_str += ("['"+img_prefix+str(b.p1_id.user.index)+"', '"+img_prefix+str(b.p2_id.user.index)+"'],")
         json_str += "'text' :"
         json_str += (" ['"+str(b.p1_id.text)+"', '"+str(b.p2_id.text)+"'],")
         json_str += "'battle_log' : "
@@ -53,12 +55,12 @@ def show_liked_battles(request):
         user_index = data['user_index']
         user_obj = User.objects.filter(index = user_index)
 
-        if user_obj.count == 0 :
+        if len(user_obj) == 0 :
             return HttpResponse("no user")
         user_obj = user_obj[0]
         user_like_list = Like_table.objects.filter(user_id = user_obj)
 
-        if user_like_list.count == 0 :
+        if len(user_like_list) == 0 :
             return HttpResponse("no battle you like")
 
         user_like_battles = list()
@@ -78,13 +80,13 @@ def show_liked_battle_results(request):
         user_index = data['user_index']
         user_obj = User.objects.filter(index = user_index)
 
-        if user_obj.count == 0 :
+        if len(user_obj) == 0 :
             return HttpResponse("no user")
 
         user_obj = user_obj[0]
         user_like_battles = Like_table.objects.filter(user_id = user_obj)
 
-        if user_like_battles.count == 0 :
+        if len(user_like_battles) == 0 :
             return HttpResponse("no battle you like")
 
         unchecked_list = list()
@@ -94,7 +96,7 @@ def show_liked_battle_results(request):
             elif like.battle_log_id.finish == False:
                 unchecked_list.append(like.battle_log_id)
 
-        if unchecked_list.count == 0 :
+        if len(unchecked_list) == 0 :
             return HttpResponse("no battle results")
 
         json_encode = make_json_arr(unchecked_list)
@@ -112,20 +114,20 @@ def show_my_battles(request):
         user_index = data['user_index']
         user_obj = User.objects.filter(index = user_index)
 
-        if user_obj.count == 0 :
+        if len(user_obj) == 0 :
             return HttpResponse("no user")
 
         user_obj = user_obj[0]
         photo_obj = Photo.objects.filter(user = user_obj)
 
-        if photo_obj.count == 0 :
+        if len(photo_obj) == 0 :
             return HttpResponse("no photo")
 
         photo_obj = photo_obj[0]
         my_battles = Battle_Log.objects.filter((Q(p1_id = photo_obj) | Q(p2_id = photo_obj)))
 
 
-        if my_battles.count == 0 :
+        if len(my_battles) == 0 :
             return HttpResponse("no battle")
 
         json_encode = make_json_arr(my_battles)
@@ -141,20 +143,20 @@ def show_my_battle_results(request):
         user_index = data['user_index']
         user_obj = User.objects.filter(index = user_index)
 
-        if user_obj.count == 0 :
+        if len(user_obj) == 0 :
             return HttpResponse("no user")
 
         user_obj = user_obj[0]
         photo_obj = Photo.objects.filter(user = user_obj)
 
-        if photo_obj.count == 0:
+        if len(photo_obj) == 0:
             return HttpResponse("no photo")
 
         photo_obj = photo_obj[0]
 
         my_battles = Battle_Log.objects.filter((Q(p1_id = photo_obj) | Q(p2_id = photo_obj)), finish = True)
 
-        if my_battles.count == 0 :
+        if len(my_battles) == 0 :
             return HttpResponse("no battle")
 
 
@@ -163,7 +165,7 @@ def show_my_battle_results(request):
             if not battle.finish and user_obj.last_session <= battle.finish_time:
                 unchecked_list.append(battle)
 
-        if unchecked_list.count == 0 :
+        if len(unchecked_list) == 0 :
             return HttpResponse("no battle results")
 
         json_encode = make_json_arr(unchecked_list)
@@ -181,26 +183,29 @@ def vote(request):
         battle_log_index = data["battle_log"]
 
         user_obj = User.objects.filter(index = user_index)
-        if user_obj.count == 0:
+        if len(user_obj) == 0:
             return HttpResponse("no user")
         user_obj = user_obj[0]
 
         battle = Battle_Log.objects.filter(index = battle_log_index)
-        if battle.count == 0:
+        if len(battle) == 0:
             return HttpResponse("no battle")
         battle = battle[0]
 
         photo = Photo.objects.filter(index = liked_photo)[0]
-        if photo.count == 0:
+        if len(photo) == 0:
             return HttpResponse("no photo")
         photo = photo[0]
 
+
+
         vote_to = battle.p1_vote if battle.p1_id.index == liked_photo else battle.p2_vote
         vote_to += 1
-        battle.save
+        battle.p1_vote = vote_to
+        battle.save()
 
         like_log = Like_table(user_id = user_obj, battle_log_id = battle, photo_id = photo)
-        like_log.save
+        like_log.save()
 
         return HttpResponse("vote success")
     return HttpResponse("bad access")

@@ -100,7 +100,7 @@ def show_lounge(request):
 
         lounge_photos = Photo.objects.filter(lounge = True).exclude(visible = False).order_by('upload_time')
 
-        if lounge_photos.count  == 0 :
+        if len(lounge_photos)  == 0 :
             return HttpResponse("no photos in lounge")
       #json_encode = serializers.serialize('json',lounge_photos)
         img_prefix = "https://s3.ap-northeast-2.amazonaws.com/acut-fullsize-image/"
@@ -137,7 +137,7 @@ def show_my_lounge(request):
         user_obj = User.objects.filter(index = u_idx)[0]
 
 
-        if user_obj.count == 0:
+        if len(user_obj) == 0:
             return HttpResponse("no User")
 
         my_lounge_photos = Photo.objects.filter(user = user_obj[0],lounge = True).exclude(visible = False)

@@ -41,16 +41,15 @@ def sign_up(request) :
 
     return HttpResponse("bad access")
 
-
 @csrf_exempt
 def sign_in(request):
     if request.method =='POST':
-        data = json.load(request)
-        #data = json_obj[0]
+        json_obj = json.load(request)
+        data = json_obj[0]
         #data = json.load(request)
         u_id = data['user_id']
 
-        res = User.objects.filter(user_id = u_id).values("index","pw","user_name","profile_thumb","email")
+        res = User.objects.filter(user_id = u_id)
 
         if res.exists():
             sign_in_user = res[0]
