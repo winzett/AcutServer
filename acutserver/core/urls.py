@@ -14,17 +14,18 @@ urlpatterns =[
     #url(r'^api_auth/', include('rest_framework.urls', namespace = 'rest_framework')),
     url(r'^testsign_in', test_page.signin_test, name='sign_in_test'),
     url(r'^sign_in', membership_management.sign_in, name='sign_in'),
+    url(r'^sign_up', membership_management.sign_up, name='sign_up'),
     url(r'^upload_img', test_page.upload, name='upload'),
     url(r'^upload_page', test_page.uploadpage, name='upload_page'),
     url(r'^show_lounge', photo_management.show_lounge, name='lounge'),
-    url(r'^show_battles', battle_management.show_battles, name='show_battles'),
+    url(r'^show_my_lounge', photo_management.show_my_lounge, name='my_lounge'),
     url(r'^create_photo', photo_management.create, name='create'),
+    url(r'^show_battles', battle_management.show_battles, name='show_battles'),
     url(r'^show_liked_battles', battle_management.show_liked_battles, name='show_liked_battles'),
     url(r'^show_liked_battle_results', battle_management.show_liked_battle_results, name='show_liked_battle_results'),
     url(r'^show_my_battles', battle_management.show_my_battles, name='show_my_battles'),
     url(r'^show_my_battle_results', battle_management.show_my_battle_results, name='show_my_battle_results'),
 
-     url(r'^show_battles', battle_management.show_battles,'show_battles'),
 
     ]
 #router = routers.DefaultRouter()
