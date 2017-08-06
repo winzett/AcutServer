@@ -167,3 +167,9 @@ AWS_S3_URL_PROTOCOL = 'https'
 AWS_QUERYSTRING_QUTH = False
 AWS_S3_HOST = 's3.ap-northeast-2.amazonaws.com' 
 MEDIA_URL = 'rn:aws:s3:::%s/'%AWS_STORAGE_BUCKET_NAME
+
+EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_HOST_USER = os.environ.get('SENDGRID_ID')
+EMAIL_HOST_PASSWORD = os.environ.get('SENDGRID_PW')
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True

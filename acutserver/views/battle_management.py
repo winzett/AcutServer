@@ -2,7 +2,8 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
-from acutserver.core.models import User, Battle_Log, Like_table
+from acutserver.core.models import User, Battle_Log, Like_table, Photo
+from django.db.models import Q
 import json
 
 def make_json_arr(battle):
@@ -33,7 +34,7 @@ def make_json_arr(battle):
 def show_battles(request):
     if request.method == 'POST':
         data = json.load(request)
-        user_index = data[0]['user_index']
+        user_index = data['user_index']
 
         #likes = Like_table.objects.filter(user_id = user_obj)
         battles = Battle_Log.objects.all()#.exclude(index__in = likes)
@@ -49,7 +50,7 @@ def show_battles(request):
 def show_liked_battles(request):
     if request.method == 'POST':
         data = json.load(request)
-        user_index = data[0]['user_index']
+        user_index = data['user_index']
         user_obj = User.objects.filter(index = user_index)
 
         if user_obj.count == 0 :
@@ -74,7 +75,7 @@ def show_liked_battles(request):
 def show_liked_battle_results(request):
     if request.method == "POST":
         data = json.load(request)
-        user_index = data[0]['user_index']
+        user_index = data['user_index']
         user_obj = User.objects.filter(index = user_index)
 
         if user_obj.count == 0 :
@@ -108,17 +109,23 @@ def show_liked_battle_results(request):
 def show_my_battles(request):
     if request.method == 'POST':
         data = json.load(request)
-        user_index = data[0]['user_index']
+        user_index = data['user_index']
         user_obj = User.objects.filter(index = user_index)
 
         if user_obj.count == 0 :
             return HttpResponse("no user")
 
         user_obj = user_obj[0]
+        photo_obj = Photo.objects.filter(user = user_obj)
 
-        my_battles = Battle_Log.objects.filter(Q(p1 = user_obj) | Q(p2 = user_obj))
+        if photo_obj.count == 0 :
+            return HttpResponse("no photo")
 
-        if my_battles == 0 :
+        photo_obj = photo_obj[0]
+        my_battles = Battle_Log.objects.filter((Q(p1_id = photo_obj) | Q(p2_id = photo_obj)))
+
+
+        if my_battles.count == 0 :
             return HttpResponse("no battle")
 
         json_encode = make_json_arr(my_battles)
@@ -131,16 +138,23 @@ def show_my_battles(request):
 def show_my_battle_results(request):
     if request.method == "POST":
         data = json.load(request)
-        user_index = data[0]['user_index']
+        user_index = data['user_index']
         user_obj = User.objects.filter(index = user_index)
 
         if user_obj.count == 0 :
             return HttpResponse("no user")
 
         user_obj = user_obj[0]
-        my_battles = Battle_Log.objects.filter(Q(p1 = user_obj) | Q(p2 = user_obj))
+        photo_obj = Photo.objects.filter(user = user_obj)
 
-        if my_battles == 0 :
+        if photo_obj.count == 0:
+            return HttpResponse("no photo")
+
+        photo_obj = photo_obj[0]
+
+        my_battles = Battle_Log.objects.filter((Q(p1_id = photo_obj) | Q(p2_id = photo_obj)), finish = True)
+
+        if my_battles.count == 0 :
             return HttpResponse("no battle")
 
 
@@ -162,9 +176,9 @@ def show_my_battle_results(request):
 def vote(request):
     if request.method == "POST":
         data =json.load(request)
-        user_index =  data[0]["user_index"]
-        liked_photo = data[0]["liked_photo"]
-        battle_log_index = data[0]["battle_log"]
+        user_index =  data["user_index"]
+        liked_photo = data["liked_photo"]
+        battle_log_index = data["battle_log"]
 
         user_obj = User.objects.filter(index = user_index)
         if user_obj.count == 0:

@@ -45,8 +45,8 @@ def sign_up(request) :
 @csrf_exempt
 def sign_in(request):
     if request.method =='POST':
-        json_obj = json.load(request)
-        data = json_obj[0]
+        data = json.load(request)
+        #data = json_obj[0]
         #data = json.load(request)
         u_id = data['user_id']
 
