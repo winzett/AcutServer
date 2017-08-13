@@ -24,7 +24,9 @@ def create(request):
         u_idx = data['user_index']
         #p_info = data['photo_info']
         #p_loc = data['location']
-        img_text = data['user_text']
+        img_content = ''
+        if not data['user_text'] :
+            img_content = data['user_text']
 
         img = data['img']
 
@@ -38,7 +40,7 @@ def create(request):
         user_obj = User.objects.filter(index = u_idx)
 
         #if form.is_valid():
-        image_file = Photo(user= user_obj[0], img = request.FILES[u'file'], text = img_text)
+        image_file = Photo(user= user_obj[0], img = request.FILES[u'file'], text = img_content)
         
         image_file.save()
           #p_img = image_file.image
@@ -114,7 +116,7 @@ def show_lounge(request):
             json_str += "'user_index':"
             json_str += ('"'+str(p.user.index)+'",')
             json_str += "'text':"
-            if p.text is None:
+            if p.text == None:
                 json_str += ('" "}')
             else :
                 json_str += ('"'+p.text+'"}')

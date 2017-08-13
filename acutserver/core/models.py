@@ -41,21 +41,33 @@ class User(models.Model) :
     kakao = models.CharField(max_length=100)
     alarm_on = models.BooleanField(default= False)
 
-    class Meta :
-        verbose_name = "User"
-        verbose_name_plural = "Users"
 
     def save(self, *args, **kwargs):
         self.last_session = timezone.now()
-        return super(User,self).save(*args, **kwarg)
+        return super(User,self).save(*args, **kwargs)
 
     def as_json(self):
+        image_path = ''
+        if isinstance(self.profile_thumb, ImageField):
+            try:
+                image_path = obj.path
+            except ValueError, e:
+                image_path = ''
+
+        
 
         return dict(
             index = self.index,
             user_name = self.user_name,
-            profile_thumb = self.profile_thumb,
+            user_id = self.user_id,
+            nickname = self.nickname,
+            profile_thumb = image_path,
             email = self.email,
+            vote = self.vote,
+            win_vote = self.win_vote,
+            my_vote = self.my_vote,
+            battle = self.battle,
+            win = self.win
             )
 
 class upload_file(models.Model):

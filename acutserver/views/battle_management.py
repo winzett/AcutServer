@@ -3,7 +3,12 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
 from acutserver.core.models import User, Battle_Log, Like_table, Photo
+from django.core.files.uploadedfile import SimpleUploadedFile
+from PIL import Image
+import base64
+
 from django.db.models import Q
+
 import json
 
 def make_json_arr(battle):
@@ -15,8 +20,8 @@ def make_json_arr(battle):
     for b in battle:
         json_str += "{'img' : "
         json_str += ("['"+img_prefix+str(b.p1_id.img)+"', '"+img_prefix+str(b.p2_id.img)+"'],")
-        json_str += "{'user_index' : "
-        json_str += ("['"+img_prefix+str(b.p1_id.user.index)+"', '"+img_prefix+str(b.p2_id.user.index)+"'],")
+        json_str += "'user_index' : "
+        json_str += ("['"+str(b.p1_id.user.index)+"', '"+str(b.p2_id.user.index)+"'],")
         json_str += "'text' :"
         json_str += (" ['"+str(b.p1_id.text)+"', '"+str(b.p2_id.text)+"'],")
         json_str += "'battle_log' : "
@@ -31,6 +36,47 @@ def make_json_arr(battle):
     json_str += "]}"
 
     return json.dumps(json_str)
+
+def have_battle(request):
+
+    if request.method == 'POST':
+        data = json.load(request)
+        user_index = data['user_index']
+        img_text = data['user_text']
+        img = data['img']
+        img_content = base64.b64decode(img)
+        img_result = SimpleUploadedFile('temp.jpg',img_content,getattr(img, "content_type", "application/octet-stream"))
+
+        request[u'file'] = img_result
+        
+        opponent_photo_index = data['opponent_photo_index']
+
+
+        user_obj = User.objects.filter(index = user_index)
+        if len(user_obj) == 0 :
+            return HttpResponse("no user")
+        
+        user_obj = user_obj[0]
+
+        photo_obj = Photo(user = user_obj, img = request[u'file'], text = img_text)
+
+        photo_obj.save()
+  
+
+        opponent_photo_obj = Photo.objects.filter(index = opponent_photo_index)
+        if len(opponent_photo_obj) == 0 :
+            return HttpResponse("no photo")
+
+        photo_obj = opponent_photo_obj[0]
+
+        new_battle = Battle(opponent_photo_obj, photo_obj)
+
+        new_battle.save()
+
+        return HttpResponse("success")
+
+    return HttpResponse("bad access")
+
 
 @csrf_exempt
 def show_battles(request):
@@ -201,8 +247,18 @@ def vote(request):
 
         vote_to = battle.p1_vote if battle.p1_id.index == liked_photo else battle.p2_vote
         vote_to += 1
-        battle.p1_vote = vote_to
+
+        voted_photo = battle.p1_id if battle.p1_id.index == liked_photo else vattle.p2_id
+
+        voted_photo.user.my_vote += 1
+
+        voted_photo.user.save()
+        
         battle.save()
+
+        user_obj.vote = user_obj + 1
+        user_obj.save()
+
 
         like_log = Like_table(user_id = user_obj, battle_log_id = battle, photo_id = photo)
         like_log.save()
