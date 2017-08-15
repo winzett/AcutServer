@@ -15,6 +15,7 @@ urlpatterns =[
     #url(r'^api_auth/', include('rest_framework.urls', namespace = 'rest_framework')),
     url(r'^testsign_in', test_page.signin_test, name='sign_in_test'),
     url(r'^sign_in', membership_management.sign_in, name='sign_in'),
+    url(r'^email_varification', membership_management.varifying_email, name='varification'),
     url(r'^sign_up', membership_management.sign_up, name='sign_up'),
     url(r'^upload_img', test_page.upload, name='upload'),
     url(r'^upload_page', test_page.uploadpage, name='upload_page'),
@@ -27,7 +28,7 @@ urlpatterns =[
     url(r'^show_my_battles', battle_management.show_my_battles, name='show_my_battles'),
     url(r'^show_my_battle_results', battle_management.show_my_battle_results, name='show_my_battle_results'),
     url(r'^have_battle_results', battle_management.have_battle, name='have_battle'),
-
+    
     url(r'^send_mail', test_mail, name='test_mail' ),
     #url(r'^send_test_mail', test_test_mail(), name='test_test_mail' ),
     #url(r'^send_mailing', mailing(), name='mailing' ),

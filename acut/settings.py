@@ -121,7 +121,6 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'Asia/Seoul'
 
@@ -157,6 +156,8 @@ STATIC_ROOT = os.path.join(PROJECT_DIR,'static')
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = None
+DATABASE_OPTIONS = {'charset': 'utf8'}
+TIME_ZONE = 'Asia/Seoul'
 
 AWS_S3_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_S3_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")

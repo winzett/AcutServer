@@ -5,6 +5,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 
 from acutserver.form.forms import user_form
 from acutserver.core.models import User
+from acutserver.core.mailer import test_mail
 from passlib.hash import pbkdf2_sha256
 
 import json
@@ -40,6 +41,19 @@ def sign_up(request) :
             return HttpResponse("save fail")
 
     return HttpResponse("bad access")
+
+
+@csrf_exempt
+def varifying_email(request):
+    if request.method == 'POST':
+        #data =json.load(request)
+        #e_mail_addr = data["email"]
+        e_mail_addr = request.POST.get('email')
+        varifying_code = test_mail( e_mail_addr)
+
+        return HttpResponse(varifying_code)
+    return HttpResponse("bad access")
+
 
 @csrf_exempt
 def sign_in(request):

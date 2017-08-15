@@ -8,7 +8,7 @@ from PIL import Image
 import base64
 
 from django.db.models import Q
-
+from django.core import serializers
 import json
 
 def make_json_arr(battle):
@@ -81,13 +81,15 @@ def have_battle(request):
 @csrf_exempt
 def show_battles(request):
     if request.method == 'POST':
-        data = json.load(request)
-        user_index = data['user_index']
+        #data = json.load(request)
+        #user_index = data['user_index']
 
         #likes = Like_table.objects.filter(user_id = user_obj)
         battles = Battle_Log.objects.all()#.exclude(index__in = likes)
 
-        json_encode = make_json_arr(battles)
+        #json_encode = make_json_arr(battles)
+        serialized_obj = [ serializers.serialize('json', [ battle, ]) for battle in battles]
+        json_encode = json.dumps(serialized_obj)
 
         return HttpResponse(json_encode, content_type= "application/json")
     return HttpResponse("bad access")

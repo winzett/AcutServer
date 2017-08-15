@@ -11,5 +11,15 @@
             <input type="submit"
                    value="submit"/>
       </form>
+
+      <form acution="/acutserver/send_mail"
+        method="post"
+        enctype="application/json">
+        {% csrf_token %}
+          
+        <input type="submit"
+        value="submit"/>
+      
+      </form>
     </body>
 </html>
