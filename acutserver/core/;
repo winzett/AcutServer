@@ -45,11 +45,9 @@ class User(models.Model) :
 
 
     def save(self, *args, **kwargs):
-      from passlib.hash import pbkdf2_sha256
       if not self.index:
         self.created_at = timezone.now()
-        self.pw = pbkdf2_sha256.hash(self.pw)
-      
+
       self.last_session = timezone.now()
       self.updated_at = timezone.now()
         
@@ -124,19 +122,17 @@ class Battle_Log(models.Model) :
     index = models.AutoField(primary_key=True)
     p1_id = models.ForeignKey(Photo,related_name = 'p1_id')
     p2_id = models.ForeignKey(Photo, related_name = 'p2_id')
-    start_time= models.DateTimeField()
+    start_time= models.DateTimeField(default=timezone.now)
     p1_vote = models.PositiveIntegerField(default = 0)
     p2_vote = models.PositiveIntegerField(default = 0)
     skip = models.PositiveIntegerField(default = 0)
     finish = models.BooleanField(default = False)
     created_at = models.DateTimeField(editable=False)
     updated_at = models.DateTimeField()
-    finished_at = models.DateTimeField()
 
     def save(self, *args, **kwargs):
         if not self.index:
             self.created_at = timezone.now()
-            self.start_time = timezone.now()
         self.updated_at = timezone.now()
         return super(Battle_Log,self).save(*args, **kwargs)
 
@@ -153,23 +149,5 @@ class Like_table(models.Model):
     def save(self, *args, **kwargs):
         if not self.index:
             self.created_at = timezone.now()
-
-            like_battle = self.battle_log_id
-            photo_owner = self.photo_id.user
-            voted_user = self.user_id
-
-            if like_battle.p1_id.index == self.photo_id.index:
-                like_battle.p1_vote += 1
-            elif like_battle.p2_id.index == self.photo_id.index:
-                like_battle.p2_vote += 1
-            else :
-                return super(Like_table,self).save(*args,**kwargs)
-            voted_user.vote += 1
-            photo_owner.my_vote += 1
-
-            voted_user.save()
-            like_battle.save()
-            photo_owner.save()
-
         self.updated_at = timezone.now()
-        return super(Like_table,self).save(*args, **kwargs)
+        return super(,self).save(*args, **kwargs)

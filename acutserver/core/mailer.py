@@ -25,11 +25,12 @@ from django.conf import settings
 
 
 def test_mail(email):
-    sg = sendgrid.SendGridAPIClient(apikey='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')
+    sg = sendgrid.SendGridAPIClient(apikey=os.environ.get("SENDGRID_API_KEY"))
+
     #sg = sendgrid.SENDGRID_API_KEY(apikey=settings.SENDGRID_API_KEY)
 
     print os.environ.get('SENDGRID_API_KEY')
-    from_email = Email("winzett0@gmail.com")
+    from_email = Email("acutkiwipic@gmail.com")
     varifying_code = "qweqwe"
     to_email = Email(email)
     subject = "Sending with SendGrid is Fun"

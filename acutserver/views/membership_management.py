@@ -15,7 +15,7 @@ import base64
 def sign_up(request) :
     if request.method =='POST':
         data = json.load(request)
-        data['pw'] = pbkdf2_sha256.hash(data['pw'])
+        #data['pw'] = pbkdf2_sha256.hash(data['pw'])
         img = data['img']
 
         img_content = base64.b64decode(img)

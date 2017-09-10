@@ -106,27 +106,22 @@ def show_lounge(request):
       #json_encode = serializers.serialize('json',lounge_photos)
         img_prefix = "https://s3.ap-northeast-2.amazonaws.com/acut-fullsize-image/"
 
+        json_arr = {'lounge_photos' : []}
 
-        json_str='{"lounge_photos":['
-        index = 0
         for p in lounge_photos :
-            json_str += "{'img':"
-            json_str += ('"'+img_prefix+str(p.img)+'",')
-            json_str += "'user_index':"
-            json_str += ('"'+str(p.user.index)+'",')
-            json_str += "'text':"
-            if p.text is None:
-                json_str += ('" "}')
-            else :
-                json_str += ('"'+p.text+'"}')
+
+            json_obj = {
+                'index' : p.index,
+                'img' : img_prefix+str(p.img),
+                'user_index' : str(p.user.index),
+                'text' : p.text if not p.text is None else ""
+            }
+
+            json_arr['lounge_photos'].append(json_obj)
 
 
-            if index != len(lounge_photos)-1 :
-                json_str += ","
-            index += 1
 
-        json_str += "]}"
-        json_encode = json.dumps(json_str)
+        json_encode = json.dumps(json_arr)
       #json_encode = serializers.serialize('json', json_str)
 
         return HttpResponse(json_encode, content_type="application/json")
@@ -144,23 +139,18 @@ def show_my_lounge(request):
             return HttpResponse("no User")
 
         my_lounge_photos = Photo.objects.filter(user = user_obj[0],lounge = True).exclude(visible = False)
-        json_str='{"lounge_photos":['
-        index = 0;
-
+        
+        json_arr = {'lounge_photos' : []}
         for p in my_lounge_photos:
-            json_str += '{"img":'
-            json_str += ('"'+img_prefix+str(p.img)+'",')
-            json_str += '"text":'
+            json_obj = {
+                'img' : img_prefix+str(p.img),
+                'user_index' : str(p.user.index),
+                'text' : p.text
+            }
 
-            if p.text is None:
-                json_str += ('" "}')
-            else :
-                json_str += ('"'+str(p.text)+'"}')
+            json_arr['lounge_photos'].append(json_obj)
 
-            if index != len(lounge_photos)-1:
-                json_str += ","
-            index += 1
+        json_encode = json.dumps(json_arr)
 
-        json_str += ']}'
         return HttpResponse(json_encode, content_type="application/json")
     return HttpResponse("bad access")

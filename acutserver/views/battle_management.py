@@ -14,28 +14,23 @@ import json
 def make_json_arr(battle):
     img_prefix = "https://s3.ap-northeast-2.amazonaws.com/acut-fullsize-image/"
 
-    json_str = "{ 'battles' :["
+    json_arr = {'battles' : []} # 'battles' :
     index = 0
 
     for b in battle:
-        json_str += "{'img' : "
-        json_str += ("['"+img_prefix+str(b.p1_id.img)+"', '"+img_prefix+str(b.p2_id.img)+"'],")
-        json_str += "'user_index' : "
-        json_str += ("['"+str(b.p1_id.user.index)+"', '"+str(b.p2_id.user.index)+"'],")
-        json_str += "'text' :"
-        json_str += (" ['"+str(b.p1_id.text)+"', '"+str(b.p2_id.text)+"'],")
-        json_str += "'battle_log' : "
-        json_str += ("'"+str(b.index)+"',")
-        json_str += "'likes' : "
-        json_str += ("['"+str(b.p1_vote)+"','"+str(b.p2_vote)+"']}")
 
-        if index != len(battle)-1 :
-            json_str += ", "
-        index += 1
 
-    json_str += "]}"
+        json_obj = {
+            'img' : [ img_prefix+str(b.p1_id.img), img_prefix+str(b.p2_id.img)],
+            'user_index' : [str(b.p1_id.user.index) , str(b.p2_id.user.index)],
+            'text' : [ b.p1_id.text, b.p2_id.text ],
+            'battle_log' : str(b.index),
+            'likes' : [ str(b.p1_vote), str(b.p2_vote) ],
+        }
 
-    return json.dumps(json_str)
+        json_arr['battles'].append(json_obj)
+
+    return json.dumps(json_arr)
 
 def have_battle(request):
 
@@ -69,7 +64,7 @@ def have_battle(request):
 
         photo_obj = opponent_photo_obj[0]
 
-        new_battle = Battle(opponent_photo_obj, photo_obj)
+        new_battle = Battle_Log(p1_id = opponent_photo_obj, p2_id = photo_obj)
 
         new_battle.save()
 
@@ -81,15 +76,21 @@ def have_battle(request):
 @csrf_exempt
 def show_battles(request):
     if request.method == 'POST':
-        #data = json.load(request)
-        #user_index = data['user_index']
+        data = json.load(request)
+        user_index = data['user_index']
 
         #likes = Like_table.objects.filter(user_id = user_obj)
-        battles = Battle_Log.objects.all()#.exclude(index__in = likes)
+        likes_id_list = []
+        likes_list = Like_table.objects.filter(user_id = user_index)
+        for like in likes_list:
+            likes_id_list.append(like.battle_log_id.index)
 
-        #json_encode = make_json_arr(battles)
-        serialized_obj = [ serializers.serialize('json', [ battle, ]) for battle in battles]
-        json_encode = json.dumps(serialized_obj)
+        
+        battle = Battle_Log.objects.exclude(index__in = likes_id_list).order_by('-created_at')
+
+        json_encode = make_json_arr(battle)
+        #serialized_obj = [ serializers.serialize('json', [ battle, ]) for battle in battles]
+        #json_encode = json.dumps(serialized_obj)
 
         return HttpResponse(json_encode, content_type= "application/json")
     return HttpResponse("bad access")
@@ -246,20 +247,6 @@ def vote(request):
         photo = photo[0]
 
 
-
-        vote_to = battle.p1_vote if battle.p1_id.index == liked_photo else battle.p2_vote
-        vote_to += 1
-
-        voted_photo = battle.p1_id if battle.p1_id.index == liked_photo else vattle.p2_id
-
-        voted_photo.user.my_vote += 1
-
-        voted_photo.user.save()
-        
-        battle.save()
-
-        user_obj.vote = user_obj + 1
-        user_obj.save()
 
 
         like_log = Like_table(user_id = user_obj, battle_log_id = battle, photo_id = photo)
