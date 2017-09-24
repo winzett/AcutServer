@@ -28,7 +28,7 @@ urlpatterns =[
     url(r'^show_my_battles', battle_management.show_my_battles, name='show_my_battles'),
     url(r'^show_my_battle_results', battle_management.show_my_battle_results, name='show_my_battle_results'),
     url(r'^have_battle', battle_management.have_battle, name='have_battle'),
-    
+    url(r'^vote', battle_management.vote, name='vote'),
     url(r'^send_mail', test_mail, name='test_mail' ),
     #url(r'^send_test_mail', test_test_mail(), name='test_test_mail' ),
     #url(r'^send_mailing', mailing(), name='mailing' ),

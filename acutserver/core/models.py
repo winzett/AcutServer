@@ -131,7 +131,7 @@ class Battle_Log(models.Model) :
     finish = models.BooleanField(default = False)
     created_at = models.DateTimeField(editable=False)
     updated_at = models.DateTimeField()
-    finished_at = models.DateTimeField()
+    finished_at = models.DateTimeField(null = True)
 
     def save(self, *args, **kwargs):
         if not self.index:

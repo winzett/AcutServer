@@ -29,16 +29,19 @@ def sign_up(request) :
                         user_id = data['user_id'],
                         pw = data['pw'],
                         nickname = data['nickname'],
-                        profile_thumb = request.FILES[u'file'],
-                        email = data['email']
+                        profile_thumb = request.FILES[u'file']
                         )
 
-        form = user_form(data)
-        if form.is_valid :
-            form.save()
-            return HttpResponse("save")
-        else :
-            return HttpResponse("save fail")
+        #form = user_form(data)
+        #if form.is_valid :
+            #form.save()
+
+        user_obj.save()
+        json_obj = {'result':['1']}
+          
+        return HttpResponse(json.dumps(json_obj), content_type='application/json')
+        #else :
+            ##return HttpResponse("save fail")
 
     return HttpResponse("bad access")
 

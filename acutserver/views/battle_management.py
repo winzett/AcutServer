@@ -11,27 +11,47 @@ from django.db.models import Q
 from django.core import serializers
 import json
 
-def make_json_arr(battle):
+def make_json_arr(battles):
     img_prefix = "https://s3.ap-northeast-2.amazonaws.com/acut-fullsize-image/"
 
     json_arr = {'battles' : []} # 'battles' :
     index = 0
-
-    for b in battle:
+    
+    if len(battles) > 1:
+      for b in battles:
 
 
         json_obj = {
             'img' : [ img_prefix+str(b.p1_id.img), img_prefix+str(b.p2_id.img)],
             'user_index' : [str(b.p1_id.user.index) , str(b.p2_id.user.index)],
+            'user_profile' : [img_prefix+str(b.p1_id.user.profile_thumb), img_prefix+str(b.p2_id.user.profile_thumb)],
             'text' : [ b.p1_id.text, b.p2_id.text ],
+            'photo_index' : [b.p1_id.index, b.p2_id.index],
             'battle_log' : str(b.index),
             'likes' : [ str(b.p1_vote), str(b.p2_vote) ],
         }
 
         json_arr['battles'].append(json_obj)
 
+    else :
+      if not battles is None: 
+        b = battles[0]
+        json_obj = {
+            'img' : [ img_prefix+str(b.p1_id.img), img_prefix+str(b.p2_id.img)],
+            'user_index' : [str(b.p1_id.user.index) , str(b.p2_id.user.index)],
+            'user_profile' : [img_prefix + str(b.p1_id.user.profile_thumb), img_prefix + str(b.p2_id.user.profile_thumb)],
+            'text' : [ b.p1_id.text, b.p2_id.text ],
+            'photo_index' : [b.p1_id.index, b.p2_id.index],
+            'battle_log' : str(b.index),
+            'likes' : [ str(b.p1_vote), str(b.p2_vote) ],
+        }
+
+        json_arr['battles'].append(json_obj)
+
+
     return json.dumps(json_arr)
 
+@csrf_exempt
 def have_battle(request):
 
     if request.method == 'POST':
@@ -42,8 +62,8 @@ def have_battle(request):
         img_content = base64.b64decode(img)
         img_result = SimpleUploadedFile('temp.jpg',img_content,getattr(img, "content_type", "application/octet-stream"))
 
-        request[u'file'] = img_result
-        
+        #request[u'file'] = img_result
+        setattr(request, u'file', img_result)
         opponent_photo_index = data['opponent_photo_index']
 
 
@@ -53,7 +73,8 @@ def have_battle(request):
         
         user_obj = user_obj[0]
 
-        photo_obj = Photo(user = user_obj, img = request[u'file'], text = img_text)
+        #photo_obj = Photo(user = user_obj, img = request[u'file'], text = img_text)
+        photo_obj = Photo(user = user_obj, img = img_result, text = img_text)
 
         photo_obj.save()
   
@@ -62,7 +83,7 @@ def have_battle(request):
         if len(opponent_photo_obj) == 0 :
             return HttpResponse("no photo")
 
-        photo_obj = opponent_photo_obj[0]
+        opponent_photo_obj = opponent_photo_obj[0]
 
         new_battle = Battle_Log(p1_id = opponent_photo_obj, p2_id = photo_obj)
 
@@ -78,6 +99,29 @@ def show_battles(request):
     if request.method == 'POST':
         data = json.load(request)
         user_index = data['user_index']
+
+        #likes = Like_table.objects.filter(user_id = user_obj)
+        likes_id_list = []
+        likes_list = Like_table.objects.filter(user_id = user_index)
+        for like in likes_list:
+            likes_id_list.append(like.battle_log_id.index)
+
+        
+        battle = Battle_Log.objects.exclude(index__in = likes_id_list).order_by('-created_at')
+        json_encode = make_json_arr(battle)
+        #serialized_obj = [ serializers.serialize('json', [ battle, ]) for battle in battles]
+        #json_encode = json.dumps(serialized_obj)
+
+        return HttpResponse(json_encode, content_type= "application/json")
+    return HttpResponse("bad access")
+
+@csrf_exempt
+def show_battles_in_web(request):
+    if request.method == 'POST':
+        data = json.load(request)
+        user_index = data['user_index']
+        battle_log_id = data['battle_log_id']
+        vote_count = data['count']
 
         #likes = Like_table.objects.filter(user_id = user_obj)
         likes_id_list = []
@@ -172,8 +216,8 @@ def show_my_battles(request):
         if len(photo_obj) == 0 :
             return HttpResponse("no photo")
 
-        photo_obj = photo_obj[0]
-        my_battles = Battle_Log.objects.filter((Q(p1_id = photo_obj) | Q(p2_id = photo_obj)))
+        #photo_obj = photo_obj[0]
+        my_battles = Battle_Log.objects.filter((Q(p1_id__in = photo_obj) | Q(p2_id__in = photo_obj))).order_by('-created_at')
 
 
         if len(my_battles) == 0 :
@@ -230,19 +274,23 @@ def vote(request):
         user_index =  data["user_index"]
         liked_photo = data["liked_photo"]
         battle_log_index = data["battle_log"]
+        json_arr = {'result' : []}
 
         user_obj = User.objects.filter(index = user_index)
         if len(user_obj) == 0:
-            return HttpResponse("no user")
+            json_arr['result'].append("0")
+            return HttpResponse()
         user_obj = user_obj[0]
 
         battle = Battle_Log.objects.filter(index = battle_log_index)
         if len(battle) == 0:
+            json_arr['result'].append("0")
             return HttpResponse("no battle")
         battle = battle[0]
 
-        photo = Photo.objects.filter(index = liked_photo)[0]
+        photo = Photo.objects.filter(index = liked_photo)
         if len(photo) == 0:
+            json_arr['result'].append("0")
             return HttpResponse("no photo")
         photo = photo[0]
 
@@ -251,6 +299,7 @@ def vote(request):
 
         like_log = Like_table(user_id = user_obj, battle_log_id = battle, photo_id = photo)
         like_log.save()
+        json_arr['result'].append("1")
 
-        return HttpResponse("vote success")
+        return HttpResponse(json.dumps(json_arr), content_type="application/json")
     return HttpResponse("bad access")
