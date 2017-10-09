@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 import os
 import boto
 from boto.s3.connection import S3Connection
+from acutserver.core.api_keys import *
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'acutserver',
     'sorl.thumbnail',
+    #'gcm'
     #'social_django',
     #'rest_framework',
     #'rest_framework_swagger',
@@ -177,3 +179,5 @@ EMAIL_USE_TLS = True
 
 EMAIL_BACKEND = "sgbackend.SendGridBackend"
 SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY') 
+
+#GCM_APIKEY = get_gcm_key()

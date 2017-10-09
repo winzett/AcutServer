@@ -28,6 +28,7 @@ class User(models.Model) :
     pw = models.CharField(max_length=100)
     nickname = models.CharField(max_length=20, unique = True)
     profile_thumb = ImageField(upload_to=user_directory_path, null = True)
+    profile_thumb_url = models.URLField(null = True)
     email = models.EmailField(null = True, db_index = True)
     user_type = models.CharField(max_length=20, default = "normal")
     vote = models.PositiveIntegerField(default=0)
@@ -71,6 +72,7 @@ class User(models.Model) :
             user_id = self.user_id,
             nickname = self.nickname,
             profile_thumb = image_path,
+            #profile_thumb_url = self.profile_thumb_url,
             email = self.email,
             vote = self.vote,
             win_vote = self.win_vote,

@@ -28,6 +28,7 @@ def make_json_arr(battles):
             'text' : [ b.p1_id.text, b.p2_id.text ],
             'photo_index' : [b.p1_id.index, b.p2_id.index],
             'battle_log' : str(b.index),
+            'liked_photo' : [],
             'likes' : [ str(b.p1_vote), str(b.p2_vote) ],
         }
 
@@ -51,13 +52,15 @@ def make_json_arr(battles):
 
     return json.dumps(json_arr)
 
+
+
 @csrf_exempt
 def have_battle(request):
 
     if request.method == 'POST':
         data = json.load(request)
         user_index = data['user_index']
-        img_text = data['user_text']
+        comment = data['user_text']
         img = data['img']
         img_content = base64.b64decode(img)
         img_result = SimpleUploadedFile('temp.jpg',img_content,getattr(img, "content_type", "application/octet-stream"))
@@ -74,7 +77,7 @@ def have_battle(request):
         user_obj = user_obj[0]
 
         #photo_obj = Photo(user = user_obj, img = request[u'file'], text = img_text)
-        photo_obj = Photo(user = user_obj, img = img_result, text = img_text)
+        photo_obj = Photo(user = user_obj, img = img_result, text = comment)
 
         photo_obj.save()
   
@@ -103,15 +106,30 @@ def show_battles(request):
         #likes = Like_table.objects.filter(user_id = user_obj)
         likes_id_list = []
         likes_list = Like_table.objects.filter(user_id = user_index)
+                
         for like in likes_list:
             likes_id_list.append(like.battle_log_id.index)
 
         
-        battle = Battle_Log.objects.exclude(index__in = likes_id_list).order_by('-created_at')
-        json_encode = make_json_arr(battle)
+        battles = Battle_Log.objects.exclude(index__in = likes_id_list).order_by('-created_at')
+        
+        if len(battles) == 0:
+          json_obj = {'result': [0]}
+          return HttpResponse(json.dumps(json_obj), content_type="application/json")
+        user_nickname_list = list()
+        for battle in battles:
+          user_nickname_list.append([battle.p1_id.user.nickname, battle.p2_id.user.nickname])
+        json_encode = make_json_arr(battles)
+        json_decode = json.loads(json_encode)
+        counter = 0
+        for json_obj in json_decode['battles'] :
+          json_obj['nickname'] = user_nickname_list[counter]
+          counter += 1
+
+        json_encode = json.dumps(json_decode)
         #serialized_obj = [ serializers.serialize('json', [ battle, ]) for battle in battles]
         #json_encode = json.dumps(serialized_obj)
-
+        
         return HttpResponse(json_encode, content_type= "application/json")
     return HttpResponse("bad access")
 
@@ -128,7 +146,7 @@ def show_battles_in_web(request):
         likes_list = Like_table.objects.filter(user_id = user_index)
         for like in likes_list:
             likes_id_list.append(like.battle_log_id.index)
-
+          
         
         battle = Battle_Log.objects.exclude(index__in = likes_id_list).order_by('-created_at')
 
@@ -151,18 +169,32 @@ def show_liked_battles(request):
         if len(user_obj) == 0 :
             return HttpResponse("no user")
         user_obj = user_obj[0]
-        user_like_list = Like_table.objects.filter(user_id = user_obj)
+        user_like_list = Like_table.objects.filter(user_id = user_obj).order_by('-created_at')
 
         if len(user_like_list) == 0 :
             return HttpResponse("no battle you like")
 
+        hit_count = 0
         user_like_battles = list()
-
+        like_photos = list()
         for like in user_like_list:
             user_like_battles.append(like.battle_log_id)
-
+            if (like.battle_log_id.finish is True) and (like.battle_log_id.finished_at is not None):
+              winner_photo_index = like.battle_log_id.p1_id.index if like.battle_log_id.p1_vote >= like.battle_log_id.p2_vote else like.battle_log_id.p2_id.index
+              if like.photo_id.index == winner_photo_index:
+                hit_count += 1
+              
+            like_photos.append(like.photo_id.index)
         json_encode = make_json_arr(user_like_battles)
+        json_decode = json.loads(json_encode)
+        counter = 0
+        for json_obj in json_decode['battles']:
+            json_obj['liked_photo'].append(like_photos[counter])
+            counter += 1
 
+        json_decode['liked_photo_count'] = counter + 1
+        json_decode['hit_count'] = hit_count
+        json_encode = json.dumps(json_decode)
         return HttpResponse(json_encode, content_type="application/json")
     return HttpResponse("bad access")
 
@@ -184,17 +216,25 @@ def show_liked_battle_results(request):
 
         unchecked_list = list()
         for like in user_like_battles:
-            if not like.checked:
+            if like.checked == False and like.battle_log_id.finish == True:
                 unchecked_list.append(like.battle_log_id)
-            elif like.battle_log_id.finish == False:
-                unchecked_list.append(like.battle_log_id)
+                like.checked = True
+                like.save()
+            #elif like.battle_log_id.finish == False:
+            #    unchecked_list.append(like.battle_log_id)
 
         if len(unchecked_list) == 0 :
             return HttpResponse("no battle results")
+        
+        json_arr = {'vote_info':[]}
+        json_obj = {
+            'finished_battles_count' : len(unchecked_list),
+            'vote_count' : user_obj.vote,
+            'win_vote_count' :  user_obj.win_vote
+            }
+        #json_encode = make_json_arr(unchecked_list)
 
-        json_encode = make_json_arr(unchecked_list)
-
-
+        json_encode = json.dumps(json_obj)
         return HttpResponse(json_encode, content_type="application/json")
 
     return HttpResponse("bad access")
@@ -245,9 +285,9 @@ def show_my_battle_results(request):
         if len(photo_obj) == 0:
             return HttpResponse("no photo")
 
-        photo_obj = photo_obj[0]
+      
 
-        my_battles = Battle_Log.objects.filter((Q(p1_id = photo_obj) | Q(p2_id = photo_obj)), finish = True)
+        my_battles = Battle_Log.objects.filter((Q(p1_id__in = photo_obj) | Q(p2_id__in = photo_obj)), finish = True).order_by('-finished_at')
 
         if len(my_battles) == 0 :
             return HttpResponse("no battle")
@@ -261,11 +301,66 @@ def show_my_battle_results(request):
         if len(unchecked_list) == 0 :
             return HttpResponse("no battle results")
 
+
+        
         json_encode = make_json_arr(unchecked_list)
 
         return HttpResponse(json_encode, content_type="application/json")
 
     return HttpResponse("bad access")
+
+
+@csrf_exempt
+def history_info(request):
+    if request.method == 'POST':
+        data = json.load(request)
+        user_index = data['user_index']
+
+
+        user_obj = User.objects.filter(index = user_index)
+
+        if len(user_obj) == 0:
+            return HttpResponse("no user")
+
+        user_obj = user_obj[0]
+
+        photos = Photo.objects.filter(user = user_obj)
+
+        if len(photos) == 0 :
+            return HttpResponse("no photos")
+
+        battles = Battle_Log.objects.filter(Q(p1_id__in = photos) | Q(p2_id__in = photos))
+
+        if len(battles) == 0:
+            return HttpResponse("no battles")
+
+        total_vote_count = 0
+
+        json_arr = {'battles' : []}
+        
+        for battle in battles :
+            total_vote_count += (battle.p1_vote + battle.p2_vote)
+            json_arr['battles'].append(battle.index)
+        
+        json_obj = {
+            'total_vote_count' : total_vote_count,
+            'my_vote' : user_obj.my_vote,
+            'user_name': user_obj.nickname
+            }
+
+        json_arr['history_info'] = json_obj
+
+
+        json_encode = json.dumps(json_arr)
+
+
+        return HttpResponse(json_encode, content_type="application/json")
+    return HttpResponse("bad access")
+
+        
+        
+    
+  
 
 @csrf_exempt
 def vote(request):

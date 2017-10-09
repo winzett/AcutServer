@@ -99,7 +99,7 @@ def create(request):
 def show_lounge(request):
     if request.method == 'POST':
 
-        lounge_photos = Photo.objects.filter(lounge = True).exclude(visible = False).order_by('upload_time')
+        lounge_photos = Photo.objects.filter(lounge = True).exclude(visible = False).order_by('-upload_time')
 
         if len(lounge_photos)  == 0 :
             return HttpResponse("no photos in lounge")
@@ -128,21 +128,52 @@ def show_lounge(request):
     return HttpResponse("bad access")
 
 @csrf_exempt
+def change_photo_info(request):
+  if request.method == "POST":
+    data = json.load(request)
+    photo_index = data['photo_index']
+    photo_obj = Photo.objects.filter(index = photo_index)
+
+    if len(photo_obj) == 1:
+      return HttpResponse("no photo")
+
+    photo_obj = photo_obj[0]
+
+    comment = data['user_text'] if data['user_text'] else photo_obj.text
+    show_lounge = data['lounge'] if data['lounge'] else photo_obj.lounge
+
+    json_obj = {'result' : []}
+
+    try :
+      photo_obj.update(text = comment, lounge = show_lounge)
+      json_obj['result'].append("1")
+    except Photo.DoesNotExist : 
+      json_obj['result'].append("2")
+  
+    return HttpResponse(json.dumps(json_obj), content_type = "application/json")
+
+  return HttpResponse("bad access")
+
+@csrf_exempt
 def show_my_lounge(request):
     if request.method == 'POST':
         data = json.load(request)
         u_idx = data['user_index']
-        user_obj = User.objects.filter(index = u_idx)[0]
+        user_obj = User.objects.filter(index = u_idx)
 
 
         if len(user_obj) == 0:
             return HttpResponse("no User")
 
-        my_lounge_photos = Photo.objects.filter(user = user_obj[0],lounge = True).exclude(visible = False)
-        
+        user_obj = user_obj[0]
+        my_lounge_photos = Photo.objects.filter(user = user_obj,lounge = True).exclude(visible = False).order_by('-created_at')
+        img_prefix = "https://s3.ap-northeast-2.amazonaws.com/acut-fullsize-image/"
+
+
         json_arr = {'lounge_photos' : []}
         for p in my_lounge_photos:
             json_obj = {
+                'photo_index' : p.index,
                 'img' : img_prefix+str(p.img),
                 'user_index' : str(p.user.index),
                 'text' : p.text

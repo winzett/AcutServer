@@ -12,30 +12,84 @@ import json
 import base64
 
 @csrf_exempt
+def change_user_info(request):
+  if request.method == 'POST' :
+    data = json.load(request)
+    user_index = data['user_index']
+    user_obj = User.objects.filter(index = user_index)
+    if len(user_obj) == 0:
+      return HttpResponse("no user")
+
+    user_obj = user_obj[0]
+    new_pw = data['pw'] if data.get('pw') else user_obj.pw
+    new_nickname = data['nickname'] if data.get('nickname') else user_obj.nickname
+    if data.get('img'):
+      img = data['img']
+      img_content = base64.b64decode(img)
+      new_profile = SimpleUploadedFile('temp.jpg', img_content, getattr(img, "content_type", "application/octet-stream"))
+      #request.FILES['']
+    else :
+      new_profile = user_obj.profile_thumb
+
+    email = data['email'] if data.get('email') else user_obj.email
+    json_obj = {'result' : []}
+    try : 
+      user_obj = User.objects.filter(index = user_index).update(pw = new_pw, nickname = new_nickname, profile_thumb = new_profile )
+      json_obj['result'].append('1')
+    except User.DoesNotExist:
+      json_obj['result'].append('2')
+  
+
+  
+    return HttpResponse(json.dumps(json_obj), content_type="application/json") 
+
+
+  return HttpResponse("bad access")
+
+@csrf_exempt
+def send_user_info(request):
+
+    if request.method == 'POST':
+        user_index = data.json['user_index']
+        
+        user_obj = User.objects.filter(index =  user_index)
+
+        return HttpResponse("success")
+
+@csrf_exempt
 def sign_up(request) :
     if request.method =='POST':
         data = json.load(request)
         #data['pw'] = pbkdf2_sha256.hash(data['pw'])
         img = data['img']
-
-        img_content = base64.b64decode(img)
-        img_result = SimpleUploadedFile('temp.jpg', img_content ,getattr(img,"content_type","application/octet-stream"))
-
-        request.FILES[u'file'] = img_result
-
+        file_convert = None
+        #if data.get('profile_thumb_url') :
+          #profile_thumb_url = data['profile_thumb_url']
+        #else :
+          #profile_thumb_url = ""
+        user_last_index = User.objects.all().last().index
+        if not img :
+          img_content = base64.b64decode(img)
+          img_result = SimpleUploadedFile('temp.jpg', img_content ,getattr(img,"content_type","application/octet-stream"))
+          request.FILES[u'file'] = img_result
+          file_convert = request.FILES[u'file']
+       
+       
+        input_nickname = data['nickname'] 
         p_img = ""
 
         user_obj = User(user_name = data['user_name'],
                         user_id = data['user_id'],
                         pw = data['pw'],
-                        nickname = data['nickname'],
-                        profile_thumb = request.FILES[u'file']
+                        nickname = input_nickname+"#"+str(user_last_index),
+                        profile_thumb = file_convert
+                        #profile_thumb_url = profile_thumb_url
                         )
-
+        
         #form = user_form(data)
         #if form.is_valid :
             #form.save()
-
+        
         user_obj.save()
         json_obj = {'result':['1']}
           
