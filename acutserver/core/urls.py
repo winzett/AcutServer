@@ -9,6 +9,7 @@ from acutserver.views import membership_management
 from acutserver.views import test_page
 from acutserver.views import photo_management
 from acutserver.views import battle_management
+from acutserver.views import post_management
 from acutserver.core.mailer import *
 
 urlpatterns =[
@@ -31,8 +32,14 @@ urlpatterns =[
     url(r'^show_my_battle_results', battle_management.show_my_battle_results, name='show_my_battle_results'),
     url(r'^have_battle', battle_management.have_battle, name='have_battle'),
     url(r'^vote', battle_management.vote, name='vote'),
-    url(r'^history_info', battle_management.history_info, name='history_info'),
+     url(r'^history_info', battle_management.history_info, name='history_info'),
     url(r'^send_mail', test_mail, name='test_mail' ),
+    url(r'^notice/create', post_management.create, name='notice_create'),
+    url(r'^notice/delete', post_management.delete, name='notice_delete'),
+    url(r'^notice/edit', post_management.edit, name='notice_edit'),
+    url(r'^notice', post_management.index, name='notice'),
+    url(r'^(?P<post_index>[0-9]+)/notice/$', post_management.show, name='notice_show'),
+    #url(r'', include('gcm.urls')),
     #url(r'^send_test_mail', test_test_mail(), name='test_test_mail' ),
     #url(r'^send_mailing', mailing(), name='mailing' ),
 

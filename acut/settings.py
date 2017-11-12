@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'acutserver',
     'sorl.thumbnail',
-    #'gcm'
+    'gcm'
     #'social_django',
     #'rest_framework',
     #'rest_framework_swagger',
@@ -180,4 +180,4 @@ EMAIL_USE_TLS = True
 EMAIL_BACKEND = "sgbackend.SendGridBackend"
 SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY') 
 
-#GCM_APIKEY = get_gcm_key()
+GCM_APIKEY = get_gcm_key()

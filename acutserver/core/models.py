@@ -121,6 +121,24 @@ class Photo(models.Model) :
         verbose_name = "Photo"
         verbose_name_plural = "Photos"
 
+class Post(models.Model) :
+    index = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, db_column = 'user')
+    title = models.CharField(max_length=100)
+    img = models.ImageField(upload_to=user_directory_path,)
+    body = models.TextField(null=True)
+    post_type = models.PositiveIntegerField(default=0)
+    #visible = models.BooleanField(default=True)
+    priority = models.PositiveIntegerField(default = 0)
+    created_at = models.DateTimeField(editable=False)
+    updated_at = models.DateTimeField()
+
+    def save(self, *args, **kwargs):
+        if not self.index:
+            self.created_at = timezone.now()
+        self.updated_at = timezone.now()
+        return super(Post,self).save(*args, **kwargs)
+
 
 class Battle_Log(models.Model) :
     index = models.AutoField(primary_key=True)

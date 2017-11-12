@@ -25,6 +25,6 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^acutserver/',include('acutserver.core.urls', namespace='acutserver')),
-    #url(r'', include('gcm.urls')),
+    url(r'', include('gcm.urls')),
     #url(r'^api/', include('acutserver.core.urls', namespace = 'rest_acutserver')),
   ]
