@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'acutserver',
     'sorl.thumbnail',
-    'gcm'
+    'gcm',
     #'social_django',
     #'rest_framework',
     #'rest_framework_swagger',
