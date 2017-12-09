@@ -67,21 +67,21 @@ def sign_up(request) :
           #profile_thumb_url = data['profile_thumb_url']
         #else :
           #profile_thumb_url = ""
-        user_last_index = User.objects.all().last().index
+        user_nickname_priority = User.objects.filter(nickname = data['user_name']).count()
         if not img :
           img_content = base64.b64decode(img)
           img_result = SimpleUploadedFile('temp.jpg', img_content ,getattr(img,"content_type","application/octet-stream"))
           request.FILES[u'file'] = img_result
           file_convert = request.FILES[u'file']
        
-       
+        priority_str = ("#"+str(user_nickname_priority)) if user_nickname_priority > 0 else ""
         input_nickname = data['nickname'] 
         p_img = ""
 
         user_obj = User(user_name = data['user_name'],
                         user_id = data['user_id'],
                         pw = data['pw'],
-                        nickname = input_nickname+"#"+str(user_last_index),
+                        nickname = input_nickname+priority_str,
                         profile_thumb = file_convert
                         #profile_thumb_url = profile_thumb_url
                         )

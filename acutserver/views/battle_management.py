@@ -376,6 +376,8 @@ def vote(request):
             json_arr['result'].append("0")
             return HttpResponse()
         user_obj = user_obj[0]
+        
+
 
         battle = Battle_Log.objects.filter(index = battle_log_index)
         if len(battle) == 0:
@@ -389,12 +391,36 @@ def vote(request):
             return HttpResponse("no photo")
         photo = photo[0]
 
+        
 
-
-
-        like_log = Like_table(user_id = user_obj, battle_log_id = battle, photo_id = photo)
-        like_log.save()
-        json_arr['result'].append("1")
+        if Like_table.objects.filter(user_id =user_obj, battle_log_id = battle).count() > 0 :
+          json_arr['result'].append("1")
+        else :
+          like_log = Like_table(user_id = user_obj, battle_log_id = battle, photo_id = photo)
+          like_log.save()
+          json_arr['result'].append("1")
 
         return HttpResponse(json.dumps(json_arr), content_type="application/json")
     return HttpResponse("bad access")
+
+
+@csrf_exempt
+def vote_list(request, battle_index):
+    json_obj = {'result': []}
+
+    if not battle_index:
+      json_obj['result'].append(0)
+      return HttpResponse(json.dumps(json_obj), content_type="application/json")
+    try:
+      battle_obj = Battle_Log.objects.get(index = battle_index)
+      like_table_obj = Like_table.objects.filter(battle_log_id = battle_obj, photo_id = battle_obj.p1_id if request.GET.get('vote', '') == 'front' else battle_obj.p2_id )
+      json_obj['users'] = []
+      for like in like_table_obj : 
+        json_obj['users'].append({'user_index' : like.user_id.index, 'user_nickname' : like.user_id.nickname})
+
+      json_obj['result'].append(1)
+      
+    except Battle_Log.DoesNotExist:
+      json_obj['result'].append(0)
+    
+    return HttpResponse(json.dumps(json_obj), content_type="appliction/json")

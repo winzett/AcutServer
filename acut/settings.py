@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'acutserver',
     'sorl.thumbnail',
-    'gcm',
+    'push_notifications',
+    #'gcm',
     #'social_django',
     #'rest_framework',
     #'rest_framework_swagger',
@@ -181,3 +182,11 @@ EMAIL_BACKEND = "sgbackend.SendGridBackend"
 SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY') 
 
 GCM_APIKEY = get_gcm_key()
+
+PUSH_NOTIFICATIONS_SETTINGS = {
+    "GCM_API_KEY": get_gcm_key(),
+    #"GCM_POST_URL": ,
+    #"GCM_MAX_RECIPIENTS":,
+    #"GCM_ERROR_TIMEOUT":, 
+    
+    }

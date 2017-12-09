@@ -27,6 +27,9 @@ urlpatterns =[
     url(r'^change_photo_info', photo_management.change_photo_info, name='change_photo_info'),
     url(r'^show_battles', battle_management.show_battles, name='show_battles'),
     url(r'^show_liked_battles', battle_management.show_liked_battles, name='show_liked_battles'),
+    
+    url(r'^battle/(?P<battle_index>[0-9]+)/vote_list', battle_management.vote_list, name='battle_vote_list'),
+    url(r'^notice/(?P<post_index>[0-9]+)', post_management.show, name='notice_show'),
     url(r'^show_liked_battle_results', battle_management.show_liked_battle_results, name='show_liked_battle_results'),
     url(r'^show_my_battles', battle_management.show_my_battles, name='show_my_battles'),
     url(r'^show_my_battle_results', battle_management.show_my_battle_results, name='show_my_battle_results'),
@@ -38,8 +41,8 @@ urlpatterns =[
     url(r'^notice/delete', post_management.delete, name='notice_delete'),
     url(r'^notice/edit', post_management.edit, name='notice_edit'),
     url(r'^notice', post_management.index, name='notice'),
-    url(r'^(?P<post_index>[0-9]+)/notice/$', post_management.show, name='notice_show'),
-    #url(r'', include('gcm.urls')),
+    #url(r'^(?P<post_index>[0-9]+)/notice/$', post_management.show, name='notice_show'),
+    #url(r'', include('gcm.urls'), name='gcm'),
     #url(r'^send_test_mail', test_test_mail(), name='test_test_mail' ),
     #url(r'^send_mailing', mailing(), name='mailing' ),
 
